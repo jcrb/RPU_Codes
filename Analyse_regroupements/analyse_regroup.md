@@ -71,12 +71,18 @@ options(scipen = 6, digits = 2)
 Création  d'un nouveau fichier août 2015
 ========================================
 
+L'objectif est de créer un fichier résultant du merging des RPU 2015 et des codes de regroupement ORUMIP.
+
+Récupération des codes de regroupement
+--------------------------------------
+Les codes de regroupement sont fournis sous forme d'un classeur Excel.
+
 - création d'un nouveau dossier: Regroupement_ORUMIP/Regroupement_ORUMIP/
 - on y met __Regroupements ORUMiP Thésaurus SFMU.xlsx__
-- on sauvegarde la page 2 au format .CSV2 (semi-colon) car le tableur posssède des rubriques où les mots sont séparés par des virgules.
+- on sauvegarde la page 2 au format .CSV2 (semi-colon) car le tableur posssède des rubriques où les mots sont séparés par des virgules, sous le nom de __Regroupements_ORUMiP.csv__.
 
 ```{}
-# pour mac en mode cpnsole
+# pour mac en mode console
 path <- "Regroupement_ORUMIP/Regroupement_ORUMIP/"
 file <- "Regroupements_ORUMiP.csv"
 orumip <- read.csv2(paste0(path, file), skip = 1)
@@ -88,6 +94,10 @@ On renomme les entête de colonnes
 x <- c("CIM10", "CODE_URGENCE", "LIBELLE_URGENCE", "CODE_DISCIPLINE", "LIBELLE_DISCIPLINE","CODE_PATHOLOGIE", "LIBELLE_PATHOLOGIE")
 names(orumip) <- x
 ```
+
+Récupération des RPU 2015
+-------------------------
+Le ficher des RPU récupéré et nettoyé est sauvegardé sous le nom de __dpr2.Rda__.
 
 Lecture du fichier des RPU 2015
 ```{}
@@ -119,6 +129,10 @@ Sauvegarde du fichier dpr2
 save(dpr2, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/dpr2.Rda")
 ```
 
+Merging des 2 fichiers
+-----------------------
+Le fichier résultant est sauvegardé sous le nom de __merge2015.Rda__.
+
 on réalise un merging des deux fichiers sur la base du code CIM 10
 ```{}
 merge2015 <- merge(dpr2, orumip, by.x = "DP", by.y = "CIM10", all.x = TRUE)
@@ -126,6 +140,9 @@ save(merge2015, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda") 
 ```
 
 Analyse rapide
+--------------
+On utilise le fichier __merge2015.Rda__ créé à l'étape précédente, résultant du croisement des RPU 2015 (au 31 juillet 2015) et des code de regroupement ORUMIP.
+
 
 ```r
 load("../Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda")
@@ -655,7 +672,9 @@ tapply(merge2015$CODE_URGENCE, list(merge2015$FINESS, merge2015$CODE_URGENCE), l
 Commentaires
 ------------
 Au moment du merging on veut que toute la colonne DP soit prise en compte. Il faut donc préciser _all.x = TRUE_ 
-![img](326775.image0.jpg). Explications: [How to Use the merge() Function with Data Sets in R](http://www.dummies.com/how-to/content/how-to-use-the-merge-function-with-data-sets-in-r.html). Les codes n'ayant pas de correspondance FEDORU sont marqués NA. 
+![img](326775.image0.jpg). 
+
+Explications: [How to Use the merge() Function with Data Sets in R](http://www.dummies.com/how-to/content/how-to-use-the-merge-function-with-data-sets-in-r.html). Les codes n'ayant pas de correspondance FEDORU sont marqués NA. 
 
 Type d'urgence
 ---------------

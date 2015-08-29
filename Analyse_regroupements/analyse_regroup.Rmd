@@ -77,12 +77,18 @@ options(scipen = 6, digits = 2)
 Création  d'un nouveau fichier août 2015
 ========================================
 
+L'objectif est de créer un fichier résultant du merging des RPU 2015 et des codes de regroupement ORUMIP.
+
+Récupération des codes de regroupement
+--------------------------------------
+Les codes de regroupement sont fournis sous forme d'un classeur Excel.
+
 - création d'un nouveau dossier: Regroupement_ORUMIP/Regroupement_ORUMIP/
 - on y met __Regroupements ORUMiP Thésaurus SFMU.xlsx__
-- on sauvegarde la page 2 au format .CSV2 (semi-colon) car le tableur posssède des rubriques où les mots sont séparés par des virgules.
+- on sauvegarde la page 2 au format .CSV2 (semi-colon) car le tableur posssède des rubriques où les mots sont séparés par des virgules, sous le nom de __Regroupements_ORUMiP.csv__.
 
 ```{}
-# pour mac en mode cpnsole
+# pour mac en mode console
 path <- "Regroupement_ORUMIP/Regroupement_ORUMIP/"
 file <- "Regroupements_ORUMiP.csv"
 orumip <- read.csv2(paste0(path, file), skip = 1)
@@ -94,6 +100,10 @@ On renomme les entête de colonnes
 x <- c("CIM10", "CODE_URGENCE", "LIBELLE_URGENCE", "CODE_DISCIPLINE", "LIBELLE_DISCIPLINE","CODE_PATHOLOGIE", "LIBELLE_PATHOLOGIE")
 names(orumip) <- x
 ```
+
+Récupération des RPU 2015
+-------------------------
+Le ficher des RPU récupéré et nettoyé est sauvegardé sous le nom de __dpr2.Rda__.
 
 Lecture du fichier des RPU 2015
 ```{}
@@ -125,6 +135,10 @@ Sauvegarde du fichier dpr2
 save(dpr2, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/dpr2.Rda")
 ```
 
+Merging des 2 fichiers
+-----------------------
+Le fichier résultant est sauvegardé sous le nom de __merge2015.Rda__.
+
 on réalise un merging des deux fichiers sur la base du code CIM 10
 ```{}
 merge2015 <- merge(dpr2, orumip, by.x = "DP", by.y = "CIM10", all.x = TRUE)
@@ -132,6 +146,9 @@ save(merge2015, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda") 
 ```
 
 Analyse rapide
+--------------
+On utilise le fichier __merge2015.Rda__ créé à l'étape précédente, résultant du croisement des RPU 2015 (au 31 juillet 2015) et des code de regroupement ORUMIP.
+
 ```{r}
 load("../Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda")
 table(merge2015$CODE_URGENCE)
@@ -163,6 +180,115 @@ t <- tapply(merge2015$CODE_DISCIPLINE, list(merge2015$FINESS, merge2015$CODE_DIS
 
 ```
 
+Codes non reconnus
+------------------
+
+De nombreux codes ne sont pas reconnus par le fichier de regroupement. Il faut donc les remplacer par des codes de substitutions reconnus par le fichier de regroupement (orumip). Le nombre de codes de sustitution étant important, il est plus facile de les regrouper dans le fichier __codes_remplacement.csv__ qui peut être mis à jour régulièrement à partir du fichier __codes_remplacement.ods__.
+
+NB: certains codes restent inexploitables car sans correspondance dans le thésaurus. Par exemple W199 correspond aux chutes sans précisions. D'une manière générale, les codes commençant par U, V, W, X, Y n'ont pas de correspondance. La version 8 du cahier des charges de l'InVS recommande d'appliquer la méthodologie PMSI, c'est à dire de ne pas utiliser les codes qui sont interdits en diagnostic principal. Par exemple le code R53 (malaise et fatigue) n'est pas un DP. Il faut utiliser R53.0 (Altération de l'état général) ou R53.1 (malaise) ou R53.2 (fatigue) qui sont reconnus comme DP.
+
+```{r}
+library(epicalc)
+tab1(merge2015$LIBELLE_URGENCE)
+a <- merge2015[is.na(merge2015$LIBELLE_URGENCE),]
+x <- cbind(summary(as.factor(a$DP)))
+head(x)
+
+```
+Codes de remplacement
+---------------------
+- S060 commotion cérébrale (DP) -> S0600
+- M796	Douleur au niveau d'un membre (DP) -> M7969
+- R520  Douleur aiguë (DP) -> R529
+- A09  Autres gastroentérites et colites d'origine infectieuse ou non précisée (non DP): -> A090
+- M545  Lombalgie basse (DP) -> M5456
+- F100  Troubles mentaux et du comportement liés à l'utilisation d'alcool : intoxication aiguë (F1000)
+- S836  Entorse et foulure de parties autres et non précisées du genou -> S830
+- Z028  Autres examens à des fins administratives -> Z022
+- S525  Fracture de l'extrémité inférieure du radius	-> 5250
+- T149  Lésion traumatique, sans précision -> T140
+- R53  Malaise et fatigue <- R53+1 (malaises)
+- H669  Otite moyenne, sans précision -> H660
+- J039  Amygdalite , sans précision <- H605
+- H103  Conjonctivite aiguë, sans précision -> H100
+- W199  Chute, sans précision, lieu sans précision -> Pas de correspondance. N'est pas un DP
+- M544  Lumbago avec sciatique -> M5446
+- M791  Myalgie -> M7919
+- J180  Bronchopneumopathie, sans précision	<- J189
+- S626	Fracture d'un autre doigt -> 6260
+- M542	Cervicalgie -> M5422
+
+- M779   M7799
+- M543   M5437
+- T119   T220
+- R002   R000
+- S01    S010
+- H609   H605
+- J31    J310
+- M5459  M5456
+- R10    R100
+- N12    N10
+- T131   S910
+- W570   T634
+- V899   
+- S623   S6230
+- J038   J069
+- H109   H100
+- Y099   
+- T159   T150
+- J03    J00
+- J21    J210
+
+Les codes de remplacement sont stockés dans le fichier __Analyse-regroupements/codes_remplacement.csv__. Le fichier comporte 2 colonnes:
+
+- les codes RPU
+- les codes de remplacement compatibles avec le thésaurus de regroupment
+
+Le fichier __dpr2__ doit être corrigé avant le merging
+```{r}
+# récupère le fichier des codes de substitution
+file <- "Analyse_regroupements/codes_remplacement.csv"
+sub <- read.csv(file)
+n <- nrow(sub)
+sub$CODE_RPU <- as.character(sub$CODE_RPU)
+sub$SUBSTITUTION <- as.character(sub$SUBSTITUTION)
+
+# substitue les codes dans dpr2
+
+for(i in 1:n){
+  dpr2$DP[dpr2$DP == sub$CODE_RPU[i]] <- sub$SUBSTITUTION[i]
+  }
+
+# merge avec le fichier de regroupement ORUMIP
+
+merge2015 <- merge(dpr2, orumip, by.x = "DP", by.y = "CIM10", all.x = TRUE)
+
+# controle
+a <- merge2015$CODE_URGENCE
+sum(is.na(a))
+a <- merge2015$DP[is.na(merge2015$CODE_URGENCE)]
+head(a)
+head(summary(as.factor(a)))
+
+# sauve le fichier merge
+save(merge2015, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda") # merge2015
+```
+
+Longueur des codes CIM10
+```{r}
+a <- dpr2$DP
+summary(as.factor(nchar(a)))
+```
+
+Codes anormaux
+```{r}
+a[which(nchar(a)==1)]
+a[which(nchar(a)==7)]
+a[which(nchar(a)==8)]
+a[which(nchar(a)==18)]
+
+```
+
 
 
 Analyse
@@ -190,7 +316,9 @@ tapply(merge2015$CODE_URGENCE, list(merge2015$FINESS, merge2015$CODE_URGENCE), l
 Commentaires
 ------------
 Au moment du merging on veut que toute la colonne DP soit prise en compte. Il faut donc préciser _all.x = TRUE_ 
-![img](326775.image0.jpg). Explications: [How to Use the merge() Function with Data Sets in R](http://www.dummies.com/how-to/content/how-to-use-the-merge-function-with-data-sets-in-r.html). Les codes n'ayant pas de correspondance FEDORU sont marqués NA. 
+![img](326775.image0.jpg). 
+
+Explications: [How to Use the merge() Function with Data Sets in R](http://www.dummies.com/how-to/content/how-to-use-the-merge-function-with-data-sets-in-r.html). Les codes n'ayant pas de correspondance FEDORU sont marqués NA. 
 
 Type d'urgence
 ---------------
