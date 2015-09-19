@@ -133,6 +133,8 @@ dpr2$DP <- toupper(dpr2$DP)
 Sauvegarde du fichier dpr2
 ```{}
 save(dpr2, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/dpr2.Rda")
+
+save(dpr2, file = "dpr2.Rda")
 ```
 
 Merging des 2 fichiers
@@ -142,7 +144,10 @@ Le fichier résultant est sauvegardé sous le nom de __merge2015.Rda__.
 on réalise un merging des deux fichiers sur la base du code CIM 10
 ```{}
 merge2015 <- merge(dpr2, orumip, by.x = "DP", by.y = "CIM10", all.x = TRUE)
+# sauvegarde obsolète
 save(merge2015, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda") # merge2015
+# sauvegarde
+save(merge2015, file = "merge2015.Rda") # merge2015
 ```
 
 Analyse rapide
@@ -150,7 +155,7 @@ Analyse rapide
 On utilise le fichier __merge2015.Rda__ créé à l'étape précédente, résultant du croisement des RPU 2015 (au 31 juillet 2015) et des code de regroupement ORUMIP.
 
 ```{r}
-load("../Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda")
+load("../merge2015.Rda")
 table(merge2015$CODE_URGENCE)
 table(merge2015$CODE_DISCIPLINE)
 table(merge2015$CODE_PATHOLOGIE)
@@ -247,7 +252,8 @@ Les codes de remplacement sont stockés dans le fichier __Analyse-regroupements/
 Le fichier __dpr2__ doit être corrigé avant le merging
 ```{r}
 # récupère le fichier des codes de substitution
-file <- "Analyse_regroupements/codes_remplacement.csv"
+# mode console: file <- "Analyse_regroupements/codes_remplacement.csv"
+file <- "codes_remplacement.csv"
 sub <- read.csv(file)
 n <- nrow(sub)
 sub$CODE_RPU <- as.character(sub$CODE_RPU)
@@ -272,6 +278,8 @@ head(summary(as.factor(a)))
 
 # sauve le fichier merge
 save(merge2015, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda") # merge2015
+# sauvegarde
+save(merge2015, file = "merge2015.Rda") # merge2015
 ```
 
 Longueur des codes CIM10
