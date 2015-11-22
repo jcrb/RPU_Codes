@@ -1,0 +1,433 @@
+---
+title: "Analyse le fichier mergé"
+author: "JcB"
+date: "22/11/2015"
+output:
+  pdf_document:
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+  html_document:
+    number_sections: yes
+---
+
+Alalyse le fichier __merge2015__ résultant du merging des fichiers __dpr2__ et __orumip__. Voir README.md pour la signification des fichiers. Le fichier _merge2015_ est par __Analyse_regroupement__.
+
+Récupération des fichiers de travail
+====================================
+
+```{r}
+library(epicalc)
+
+path <- "../" # path <- "" en mode console
+
+load("../Regroupement_ORUMIP/merge2015.Rda") # le fichier mergé
+source(paste0(path,"regroupement.R"))
+
+d3 <- merge2015 # pour rendre le programme générique
+anc <- 2015
+
+names(d3)
+
+summary(d3$TYPE_URGENCES)
+# Décommenter si nécessaire. Affichage volumineux
+# summary(d3$CHAPITRE)
+# summary(d3$SOUS_CHAPITRE)
+
+tapply(d3$TYPE_URGENCES, list(d3$FINESS, d3$TYPE_URGENCES), length)
+```
+
+Type d'urgence
+---------------
+```{r type_urgence}
+n.type <- nrow(d3)
+s.type <- summary(d3$TYPE_URGENCES)
+s.type
+
+pie(s.type, main = paste0(anc, " - Grands groupes diagnostics"), col = c("yellow","blue", "orange", "green", "red","black"))
+
+par(mar = c(6,4,3,2))
+barplot(sort(s.type, decreasing = TRUE), las = 2, cex.names = 0.7, main = "Répartition des diagnostics principaux \nselon les codes de regroupement de l' ORUMIP")
+
+
+tab1(d3$TYPE_URGENCES, sort.group = "decreasing", cex.names = 0.6, main = "Répartition des diagnostics principaux \nselon les codes de regroupement de l' ORUMIP")
+
+```
+
+
+`r s.type["NA's"]` codes de sont pas reconnus (`s.type["NA's"]*100/n.type` %).
+
+```{r code_non_reconnu}
+a <- d3[is.na(d3$TYPE_URGENCES),]
+cbind(summary(as.factor(a$DP)))
+```
+- Plus de la moitié des codes concernent __R53+0__, __R53+1__ et __R53+2__ qui sont des codes PMSI. _R53_ = Malaise et fatigue.
+- r11 = vomissements: pb de casse
+- B99+1 = Syndrome infectieux sans cause trouvée
+
+exemple pour Mulhouse:
+
+```{r}
+mul <- merge2015[is.na(merge2015$LIBELLE_CIM10) & merge2015$FINESS %in% c("Mul","Hsr","Emr"),]
+mulx <- cbind(summary(as.factor(mul$DP)))
+mulx
+```
+
+
+Par type d'urgence
+==================
+  
+  Le regroupement principal de l'ORUMIP comprend les chapitres suivants:
+```{r levels_typeurgence, echo=FALSE, comment=""}
+levels(d3$TYPE_URGENCES)
+# "Autre recours", "Médico-chirurgical", "Psychiatrique", "Toxicologique", "Traumatologique"
+```
+
+Analyse des urgences médico-chirurgicales
+-----------------------------------------
+```{r chapitre}
+s.type <- summary(d3$TYPE_URGENCES)
+sort(s.type, decreasing = TRUE)
+
+medic <- d3[d3$TYPE_URGENCES == "Médico-chirurgical",]
+
+tab1(factor(medic$CHAPITRE), sort.group = "decreasing", bar.values = "percent", cex.names = 0.8, main = "Médico-chirurgical")
+
+```
+
+Analyse des urgences médico-chirurgicales
+-----------------------------------------
+```{r urg_traumato, echo=FALSE}
+trauma <- d3[d3$TYPE_URGENCES == "Traumatologique",]
+tab1(factor(trauma$CHAPITRE), sort.group = "decreasing", bar.values = "percent", cex.names = 0.8, main = "Traumatologie")
+```
+
+Par age
+=======
+
+Adultes (18 à 75 ans)
+---------------------
+```{r adultes}
+d3a <- d3[d3$AGE > 17 & d3$AGE < 76,]
+n.adl <- nrow(d3a)
+
+# table fréquence
+s.type.adl <- table(d3a$TYPE_URGENCES)
+s.type.adl
+
+# table des proportion
+p.type.adl <- round(prop.table(s.type.adl) * 100, 2)
+p.type.adl
+
+pie(s.type.adl, main = "Adultes", cex=0.8, col = palette(heat.colors(6)))
+
+taba <- tab1(d3a$TYPE_URGENCES, sort.group = "decreasing", bar.values = "percent", cex.names = 0.8, main = paste0("Médico-chirurgical adulte (N = ", n.adl, ")"), missing = FALSE)
+```
+
+
+Pédiatrie (age < 18 ans)
+------------------------
+```{r ped}
+d3p <- d3[d3$AGE < 18,]
+n.ped<- nrow(d3p)
+
+s.type.ped <- table(d3p$TYPE_URGENCES)
+sort(s.type.ped, decreasing = TRUE)
+
+pie(s.type.ped, main = "Pédiatrie", cex=0.8, col = palette(heat.colors(6)))
+
+tabp <- tab1(d3p$TYPE_URGENCES, sort.group = "decreasing", bar.values = "percent", cex.names = 0.8, main = paste0("Médico-chirurgical pédiatrique (N = ", n.ped, ")"), missing = FALSE)
+
+```
+
+Gériatrie (age > 75 ans)
+------------------------
+```{r geriatrie}
+d3g <- d3[d3$AGE > 75,]
+n.ger <- nrow(d3g)
+
+s.type.ger <- table(d3g$TYPE_URGENCES)
+sort(s.type.ger, decreasing = TRUE)
+
+pie(sort(s.type.ger), main = "Gériatrie", cex=0.8, col = palette(heat.colors(6)))
+
+tabp <- tab1(d3g$TYPE_URGENCES, sort.group = "decreasing", bar.values = "percent", cex.names = 0.8, main = paste0("Médico-chirurgical gériatrique (N = ", n.ger, ")"), missing = FALSE)
+```
+
+Synthèse
+--------
+```{r synthese}
+# table de regroupement
+t.type <- rbind(s.type.adl, s.type.ped, s.type.ger)
+t.type
+barplot(t.type)
+
+# en pourcentages
+p.type <- round(prop.table(t.type, margin = 1)*100, 2)
+p.type
+
+color <- c("red", "green", "yellow")
+barplot(p.type, cex.names = 0.6)
+barplot(p.type, cex.names = 0.6, beside = TRUE, col = color, main = "Pathologies selon l'age")
+legend("topright", legend = c("18-75 ans","0-18 ans","Sup.75 ans"), col = color, pch = 15)
+
+```
+
+Par chapitre
+============
+
+Adultes
+--------
+### Pathologie médico-chirurgicale
+```{r chap_adultes}
+medic.adl <- d3a[d3a$TYPE_URGENCES == "Médico-chirurgical",]
+n.medic.adl <- nrow(medic.adl)
+s.medic.adl <- table(factor(medic.adl$CHAPITRE))
+p.medic.adl <- round(prop.table(s.medic.adl)*100, 2)
+sort(p.medic.adl, decreasing = TRUE)
+tab1(factor(medic.adl$CHAPITRE), cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Médico-chir adultes", bar.values = "percent")
+
+```
+### Pathologie traumatique
+```{r trauma_adulte}
+trauma.adl <- d3a[d3a$TYPE_URGENCES == "Traumatologique",]
+n.trauma.adl <- nrow(trauma.adl)
+s.trauma.adl <- table(factor(trauma.adl$CHAPITRE))
+p.trauma.adl <- round(prop.table(s.trauma.adl)*100, 2)
+sort(p.trauma.adl, decreasing = TRUE)
+tab1(factor(trauma.adl$CHAPITRE), cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Traumatologie adultes", bar.values = "percent", horiz = TRUE)
+```
+
+Enfants
+-------
+### Pathologie médico-chirurgicale pédiatrique
+```{r chap_ped_med}
+f <- groupe.pathologique(d3p, "medchir")
+tab1(f$data, cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Médico-chir pédiatrique", bar.values = "percent")
+```
+
+### Pathologie traumatique pédiatrique
+```{r chap_ped_trau}
+f <- groupe.pathologique(d3p, "trau")
+tab1(f$data, cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Traumatologie pédiatrique", bar.values = "percent")
+```
+
+Gériatrie
+---------
+### Pathologie médico-chirurgicale gériatrique
+```{r chap_ger_med}
+f <- groupe.pathologique(d3g, "medchir")
+tab1(f$data, cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Médico-chir gériatrique", bar.values = "percent")
+```
+
+### Pathologie traumatique gériatrique
+```{r chap_ger_trau}
+f <- groupe.pathologique(d3g, "trau")
+tab1(f$data, cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Traumatologie gériatrique", bar.values = "percent")
+```
+
+Synthèse
+--------
+Passages bruts:
+```{r passages_bruts, echo=FALSE, comment=""}
+tx.brut <- rbind(s.type.ped, s.type.adl, s.type.ger, s.type)
+rownames(tx.brut) <- c("< 18 ans", "18-74 ans", "75 ans et plus", "TOTAL")
+tx.brut
+```
+
+Taux de passage standardisé pour 1000 RPU:
+
+```{r synthese2, echo=FALSE, comment=""}
+# taux standarisé pour 1000 passages
+t1 <- round(s.type.ped * 1000 / sum(s.type.ped), 2)
+t3 <- round(s.type.ger * 1000 / sum(s.type.ger), 2)
+t2 <- round(s.type.adl * 1000 / sum(s.type.adl), 2)
+t4 <- round(s.type * 1000 / sum(s.type), 2)
+
+tx <- rbind(t1, t2, t3, t4)
+rownames(tx) <- c("< 18 ans", "18-74 ans", "75 ans et plus", "TOTAL")
+tx
+
+barplot(tx, beside = TRUE, cex.names = 0.8, main = "Taux pour 1000 passages selon la tranche d'âge", ylab = "RPU pour 1000")
+legend("topright", legend = rownames(tx), pch = 15, col = c("gray40", "gray60", "gray80"))
+
+```
+
+
+AVC
+===
+
+```{r avc}
+AVC<-d3[substr(d3$DP,1,3)>="I60" & substr(d3$DP,1,3)<"I65" | substr(d3$DP,1,3)=="G46" | substr(d3$DP,1,3)=="G45" ,]
+AVC$etiologie <- NA
+AVC$etiologie[substr(AVC$DP,1,3) %in% c("I60","I61","I62")] <-"HEMO"
+AVC$etiologie[substr(AVC$DP,1,3) %in% c("I63","I64")] <-"ISCH"
+AVC$etiologie[substr(AVC$DP,1,3) %in% c("I64")] <-"NPRE"
+AVC$etiologie[substr(AVC$DP,1,3) %in% c("G45","G46")] <-"AIT"
+AVC$etiologie <- as.factor(AVC$etiologie)
+
+n.avc <- nrow(AVC)
+```
+RECUEIL DES DONNÉES
+-------------------
+
+- Nombre d’AVC dans l'année (+ rappeler le pourcentage d’exhaustivité du DP par rapport au nombre de RPU): __`r n.avc`__
+- Moyenne quotidienne d’AVC: __`r n.avc/365` AVC/j__
+- %  d’AVC dans l’activité globale: __`r n.avc *100 / nrow(d3)` %__
+
+PATIENTS
+--------
+```{r patients, echo=FALSE}
+s.sexe <- table(AVC$SEXE)
+sr <- s.sexe["M"]/s.sexe["F"]
+
+mean.age <- mean(AVC$AGE)
+
+c.age <- cut(AVC$AGE,breaks = seq(0,120,5), right = FALSE)
+table(c.age)
+barplot(table(c.age), las = 2, cex.names = 0.8)
+
+```
+
+- Sex ratio: `r sr`
+- Age moyen: `r round(mean.age, 2)` ans
+- Nombre d’AVC par sous classe d’âge (GT1):
+  
+  ARRIVÉE
+--------
+  - Nombre d’AVC et % par tranche d’heure GT1 (matinée, début d’après midi, fin d’après midi, soirée, nuit profonde)
+```{r avc_periode}
+# heures de découpage
+p <- c(0, 8, 12, 16, 20, 24)
+# légende
+np <- c("nuit profonde", "matinée", "début après-midi", "fin après-midi", "soirée")
+# extraction des heures à partir du format datetime (http://stackoverflow.com/questions/19292438/split-date-time)
+a <- as.numeric(format(as.POSIXct(AVC$ENTREE), "%H"))
+
+x <- cut(a, p, np, right = FALSE)
+x2 <- cut(a, p, right = FALSE)
+
+rbind(levels(x2), table(x))
+
+tab1(x, cex.names = 0.8, main = "Heure d'admission des AVC", bar.values = "percent", ylab = "%")
+
+
+```
+
+- %  passages en horaire de PDS
+
+```{r avc_pds, echo=FALSE, eval=FALSE}
+
+# CALCUL HPDS OBSOLETE REVOIR LE CALCUL (EVAL = FALSE)
+
+# Résultat sauvegardé pour tout 2014 dans horaires_pds.Rda; on peut récupérer avec load("horaires_pds.Rda") sous le nom de h.pds puis d'en faire une colonne supplémentaire: dx$HPDS <- h.pds
+# dx$HPDS <- pdsa(dx$ENTREE)
+
+
+s.avc.pds <- summary(as.factor(AVC$HPDS))
+# s.avc.pds
+p.avc.pds <- round(prop.table(s.avc.pds) * 100, 2)
+# p.avc.pds
+a <- rbind(s.avc.pds, p.avc.pds)
+n <- colnames(a)
+n[3] <- "NPDS"
+colnames(a) <- n
+rownames(a) <- c("Nombre AVC", "% AVC")
+kable(a)
+```
+
+PDSS = horaires de PDS en semaine, PDSWE = horaires de PDS le WE, NPDS = hors horaire de PDS.
+
+Mode d'arrivée aux urgences
+---------------------------
+
+```{r avc_transport}
+n.avc.moyen <- summary(factor(AVC$TRANSPORT))
+n.avc.moyen
+p.avc.moyen <- round(prop.table(n.avc.moyen)*100, 2)
+p.avc.moyen
+```
+- %  d’arrivées Moyen perso
+- %  d'arrivées SMUR
+- %  d'arrivées VSAV
+- %  d'arrivées ambulance privée
+NB : commentaire possible pour expliquer que la somme des 4 pourcentages ci dessus ne fait pas 100 %
+
+
+DIAGNOSTIC PRINCIPAL
+--------------------
+  ```{r diag_principal}
+t.diag <- table(AVC$etiologie)
+p.diag <- prop.table(t.diag)*100
+```
+
+- Nombre d’AVC et %
+- Nombre d’AIT et %
+- Nombre de codes "symptomatiques" (hémiplégie, aphasie, amaurose, etc…) et %
+- Nombre d’autres hémorragies non traumatiques et %
+
+NB : se référer à l’annexe 4 pour les regroupements.
+
+DURÉE
+-----
+  - Durée de passage (HORS UHCD) : moyenne et médiane
+- % de passages de moins de 4h
+
+MODE DE SORTIE
+--------------
+  - % d’hospitalisation
+- % de mutation
+- % de transfert
+- % de retour à domicile
+
+Résultats par type d'établissement
+==================================
+
+La trame commune recueuille les éléments suivants:
+
+```{r es,echo=FALSE, comment=""}
+d3.hus <- d3[d3$FINESS == "Hus", ] # SU SAMU CHU = HUS
+d3.mul <- d3[d3$FINESS == "Mul", ] # SU SAMU non CHU = Mulhouse
+d3.smur <- d3[d3$FINESS %in% c("Wis","Hag","Sav","Sel","Col"), ] # ES SMUR non siège SAMU
+d3.es <- d3[d3$FINESS %in% c("Ane","Odi","Dts","Geb","Alk","3Fr","Ros","Dia"), ] # ES non SMUR
+
+t2 <- table(d3.mul$TYPE_URGENCES)
+t3 <- table(d3.smur$TYPE_URGENCES)
+t4 <- table(d3.es$TYPE_URGENCES)
+t5 <- table(d3$TYPE_URGENCES) #total
+
+tx <- rbind(t1, t2, t3, t4, t5)
+row.names(tx) <- c("SU SAMU CHU","SU SAMU non CHU", "SU SMUR non SAMU","SU non SMUR","TOTAL")
+tx
+
+```
+
+Une table des types
+
+```{r}
+x <- tapply(d3$TYPE_URGENCES, d3$FINESS, table ) # x est un vecteur de list
+y <- x[-3] # on retire ste anne qui n'a aucun DP
+z <- matrix(unlist(y), nrow = length(y), ncol = 5) # on transforme y en matrice. Pour en faire un data frame: df <- df <- data.frame(matrix(unlist(y), nrow=14, byrow=T),stringsAsFactors=FALSE). Source: http://stackoverflow.com/questions/4227223/r-list-to-data-frame
+
+rownames(z) <- names(x[-3]) # ok
+colnames(z) <- names(unlist(x[1])) # ok mais pas terrible
+
+
+```
+
+Pathologies en UHTCD
+====================
+  
+  Qui sont les patients hospitalisés en UHTCD ?
+
+```{r, comment=""}
+dp.uhcd <- d3[d3$ORIENTATION == "UHCD",]
+summary(dp.uhcd$TYPE_URGENCES)
+summary(dp.uhcd$CHAPITRE)
+# nombre de DP non renseignés
+n.rens.uhcd <- sum(!is.na(dp.uhcd$CHAPITRE))
+# top 10
+s.dp.chap.uhcd <- round(sort(summary(dp.uhcd$CHAPITRE[!is.na(dp.uhcd$CHAPITRE)])*100/n.rens.uhcd, decreasing = TRUE),2)
+head(s.dp.chap.uhcd, 10)
+
+```

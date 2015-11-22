@@ -68,6 +68,35 @@ options(scipen = 6, digits = 2)
 # rm(d14, d, dpr2)
 ```
 
+Fichier des codes de regroupement ORUMIP
+========================================
+
+Analyse du fichier source de l'ORUMIP.
+
+```r
+path <- "../Regroupement_ORUMIP/Old Regroupement/" # en mode console path <- "Regroupement_ORUMIP"
+# file <- "Regroupements ORUMiP Thésaurus SFMU.csv"
+file2 <- "REGROUPEMENT-CIM10-FEDORU-V2.csv"
+
+# on récupère la nomenclature de l'Orumip
+#d <- read.csv(paste(path, file, sep="/"), skip = 1)
+d <- read.csv2(paste(path, file2, sep="/"), skip = 1)
+
+names(d)
+```
+
+```
+## [1] "Code"          "Libéllé.CIM"   "X"             "TYPE.URGENCES"
+## [5] "CHAPITRE"      "SOUS.CHAPITRE"
+```
+Retrouver tous les codes CIM10 correspondants à une gastro-entérite:
+
+
+```r
+ge <- d[which(d$SOUS.CHAPITRE == "Diarrhée et gastro-entérite"),]
+```
+On rouve 91 codes. Les GE habituelles sont regroupées par les codes commençant par __A0__. Wikipédia rapporte aussi le code __J10.8__, __J11.8__ (GE grippale), 
+
 Création  d'un nouveau fichier août 2015
 ========================================
 
@@ -78,26 +107,33 @@ Récupération des codes de regroupement
 Les codes de regroupement sont fournis sous forme d'un classeur Excel.
 
 - création d'un nouveau dossier: Regroupement_ORUMIP/Regroupement_ORUMIP/
-- on y met __Regroupements ORUMiP Thésaurus SFMU.xlsx__
-- on sauvegarde la page 2 au format .CSV2 (semi-colon) car le tableur posssède des rubriques où les mots sont séparés par des virgules, sous le nom de __Regroupements_ORUMiP.csv__.
+- on y met _Regroupements ORUMiP Thésaurus SFMU.xlsx_. Le 22/11/2015 on le remplace par le fichier __REGROUPEMENT-CIM10-FEDORU-V2.xlsx__ récupéré sur le site de la FEDORU.
+- on sauvegarde _REGROUPEMENT-CIM10-FEDORU-V2.xlsx_ au format .CSV2 (semi-colon) car le tableur posssède des rubriques où les mots sont séparés par des virgules, sous le nom de __REGROUPEMENT-CIM10-FEDORU-V2.csv__.
+- Le fichier CSV récupéré sous le nom __orumip__ et sauvegardé au format R sous __orumip.Rda__.
 
 ```{}
 # pour mac en mode console
 path <- "Regroupement_ORUMIP/Regroupement_ORUMIP/"
-file <- "Regroupements_ORUMiP.csv"
-orumip <- read.csv2(paste0(path, file), skip = 1)
-names(orumip)
+file <- "REGROUPEMENT-CIM10-FEDORU-V2.csv"
+orumip <- read.csv2(paste0(path, file), skip = 2)
+
 ```
 
 On renomme les entête de colonnes
 ```{}
-x <- c("CIM10", "CODE_URGENCE", "LIBELLE_URGENCE", "CODE_DISCIPLINE", "LIBELLE_DISCIPLINE","CODE_PATHOLOGIE", "LIBELLE_PATHOLOGIE")
+x <- c("CIM10", "LIBELLE_CIM10", "SFMU", "TYPE_URGENCES", "CHAPITRE","SOUS_CHAPITRE")
 names(orumip) <- x
+
+names(orumip)
+head(orumip)
+
+# enregistrement au format R
+write.csv2(orumip, file = "orumip.Rda")
 ```
 
 Récupération des RPU 2015
 -------------------------
-Le ficher des RPU récupéré et nettoyé est sauvegardé sous le nom de __dpr2.Rda__.
+Le ficher des RPU récupéré et nettoyé (on ne conserve que les RPU dont le DP est renseigné) est sauvegardé sous le nom de __dpr2.Rda__.
 
 Lecture du fichier des RPU 2015
 ```{}
@@ -126,7 +162,9 @@ dpr2$DP <- toupper(dpr2$DP)
 
 Sauvegarde du fichier dpr2
 ```{}
-save(dpr2, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/dpr2.Rda")
+save(dpr2, file = "Regroupement_ORUMIP/dpr2.Rda")
+
+save(dpr2, file = "dpr2.Rda")
 ```
 
 Merging des 2 fichiers
@@ -136,127 +174,498 @@ Le fichier résultant est sauvegardé sous le nom de __merge2015.Rda__.
 on réalise un merging des deux fichiers sur la base du code CIM 10
 ```{}
 merge2015 <- merge(dpr2, orumip, by.x = "DP", by.y = "CIM10", all.x = TRUE)
-save(merge2015, file = "Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda") # merge2015
+
+# sauvegarde obsolète
+save(merge2015, file = "Regroupement_ORUMIP/merge2015.Rda") # merge2015
+
+# sauvegarde
+save(merge2015, file = "merge2015.Rda") # merge2015
 ```
 
 Analyse rapide
 --------------
-On utilise le fichier __merge2015.Rda__ créé à l'étape précédente, résultant du croisement des RPU 2015 (au 31 juillet 2015) et des code de regroupement ORUMIP.
+On utilise le fichier __merge2015.Rda__ créé à l'étape précédente, résultant du croisement des RPU 2015 (au 5 novembre 2015) et des code de regroupement ORUMIP. Les codes CIM10 sont dans la colonne DP.
 
 
 ```r
-load("../Regroupement_ORUMIP/Regroupement_ORUMIP/merge2015.Rda")
-table(merge2015$CODE_URGENCE)
+load("../Regroupement_ORUMIP/merge2015.Rda")
+head(merge2015)
+```
+
+```
+##     DP                                   id CODE_POSTAL          COMMUNE
+## 1 A010 c3d2c959-12c4-49e3-85ed-ac9e1e579e32       67201      ECKBOLSHEIM
+## 2 A020 d0301a1e-b304-4385-a10c-0f901ea5e782       67650 DAMBACH LA VILLE
+## 3 A020 3a4b38c2-3c4c-4427-b6be-1bc1b1282e2f       68590       RORSCHWIHR
+## 4 A020 00857fa2-3a37-4ea0-ae62-a4b372e392a3       67350             <NA>
+## 5 A020 0b7786ab-a9e0-43f0-8bb2-d9d5afcb23b7       67500         HAGUENAU
+## 6 A020 c233649e-09af-4e11-8846-f01fd7f34b24       67230        HERBSHEIM
+##   DESTINATION              ENTREE    EXTRACT FINESS GRAVITE MODE_ENTREE
+## 1        <NA> 2015-01-05 13:11:00 2015-01-06    NHC       2    Domicile
+## 2        <NA> 2015-07-10 12:41:00      16627    Sel       2    Domicile
+## 3        <NA> 2015-04-28 22:47:00 2015-04-29    Sel       2    Domicile
+## 4         MCO 2015-08-12 05:50:00 2015-08-13    Hag       2    Domicile
+## 5        <NA> 2015-02-28 14:10:00 2015-03-01    Hag       2    Domicile
+## 6        <NA> 2015-10-23 21:09:00 2015-10-24    Sel       2    Domicile
+##   MODE_SORTIE MOTIF           NAISSANCE ORIENTATION PROVENANCE SEXE
+## 1        <NA>  R509 1983-04-08 00:00:00        <NA>       <NA>    F
+## 2    Domicile A09.9 1990-05-18 00:00:00        <NA>        PEA    F
+## 3    Domicile   Z04 1966-01-16 00:00:00        <NA>        PEA    F
+## 4    Mutation  A090 2014-06-23 00:00:00        UHCD       <NA>    F
+## 5    Domicile  A090 2014-09-12 00:00:00        <NA>       <NA>    M
+## 6    Domicile R10.4 1987-05-11 00:00:00        <NA>        PEA    F
+##                SORTIE TRANSPORT TRANSPORT_PEC AGE         LIBELLE_CIM10
+## 1 2015-01-05 19:46:00      <NA>          <NA>  31       Fièvre typhoïde
+## 2 2015-07-10 16:43:00     PERSO         AUCUN  25 Entérite à Salmonella
+## 3 2015-04-28 23:52:00     PERSO         AUCUN  49 Entérite à Salmonella
+## 4 2015-08-12 06:30:00      <NA>         AUCUN   1 Entérite à Salmonella
+## 5 2015-03-01 14:10:00      <NA>         AUCUN   0 Entérite à Salmonella
+## 6 2015-10-24 00:45:00     PERSO         AUCUN  28 Entérite à Salmonella
+##   SFMU      TYPE_URGENCES                                     CHAPITRE
+## 1  OUI Médico-chirurgical Douleurs abdominales, pathologies digestives
+## 2  non Médico-chirurgical Douleurs abdominales, pathologies digestives
+## 3  non Médico-chirurgical Douleurs abdominales, pathologies digestives
+## 4  non Médico-chirurgical Douleurs abdominales, pathologies digestives
+## 5  non Médico-chirurgical Douleurs abdominales, pathologies digestives
+## 6  non Médico-chirurgical Douleurs abdominales, pathologies digestives
+##                 SOUS_CHAPITRE
+## 1 Diarrhée et gastro-entérite
+## 2 Diarrhée et gastro-entérite
+## 3 Diarrhée et gastro-entérite
+## 4 Diarrhée et gastro-entérite
+## 5 Diarrhée et gastro-entérite
+## 6 Diarrhée et gastro-entérite
+```
+
+```r
+table(merge2015$TYPE_URGENCE)
 ```
 
 ```
 ## 
-##    AUTRE MED-CHIR      PSY   TOXICO   TRAUMA 
-##     3948    73057     3096     1243    54522
+##      Autre recours Médico-chirurgical      Psychiatrique 
+##               8145             147819               5677 
+##      Toxicologique    Traumatologique 
+##               4180              99558
 ```
 
 ```r
-table(merge2015$CODE_DISCIPLINE)
+table(merge2015$CHAPITRE)
 ```
 
 ```
 ## 
-##      AUTRE    CARDIOV    DERMATO   DIGESTIF       GAUX   INFECTIO 
-##       3948       6388       5819      15666       4919       3667 
-##      INTOX       MLSV      NEURO      ORLOS     PNEUMO        PSY 
-##       1243       4685       5852       9090       6613       3096 
-##    RHUMATO  TRAU_MINF  TRAU_MSUP    TRAU_SP TRAU_TETEC TRAU_TRONC 
-##       3701      17520      20837        908      11672       3585 
-##     UROGEN 
-##       6657
+##                                      autre et sans précision 
+##                                                          268 
+##                Céphalées, pathologies neurologiques hors SNP 
+##                                                        10302 
+##            Demande de certificats, de dépistage, de conseils 
+##                                                         3053 
+##          Dermato-allergologie et atteintes cutanéo-muqueuses 
+##                                                        10464 
+##                Difficultés psychosociales, socio-économiques 
+##                                                          514 
+##                 Douleurs abdominales, pathologies digestives 
+##                                                        27580 
+##            Douleurs de membre, rhumatologie, orthopédie, SNP 
+##                                                        19834 
+##               Douleurs pelviennes, pathologies uro-génitales 
+##                                                        11930 
+##         Douleurs thoraciques, pathologies cardio-vasculaires 
+##                                                        10858 
+##        Dyspnées, pathologies des voies aériennes inférieures 
+##                                                        11820 
+##                             Fièvre et infectiologie générale 
+##                                                         5702 
+##             Iatrogénie et complication post chirurgicale SAI 
+##                                                         1731 
+##                                      Intoxication alcoolique 
+##                                                         2308 
+##                          Intoxication au monoxyde de carbone 
+##                                                           80 
+##                                  Intoxication médicamenteuse 
+##                                                         1425 
+##                         Intoxication par d'autres substances 
+##                                                          367 
+## Malaises, lipothymies, syncopes, étourdissements et vertiges 
+##                                                         7632 
+##            ORL, ophtalmo, stomato et carrefour aéro-digestif 
+##                                                        20334 
+##      Recours lié à l'organisation de la continuité des soins 
+##                                                          409 
+##                      Réorientations, fugues,  refus de soins 
+##                                                         1277 
+##                        Signes généraux et autres pathologies 
+##                                                        11363 
+##                Soins de contrôle, surveillances et entretien 
+##                                                          893 
+##                          Traumatisme autre et sans précision 
+##                                                         6254 
+##                             Traumatisme de la tête et du cou 
+##                                                        22271 
+##                              Traumatisme du membre inférieur 
+##                                                        29599 
+##                              Traumatisme du membre supérieur 
+##                                                        35340 
+##                         Traumatisme thoraco-abdomino-pelvien 
+##                                                         6094 
+##            Troubles du psychisme, pathologies psychiatriques 
+##                                                         5677
 ```
 
 ```r
-table(merge2015$CODE_PATHOLOGIE)
+table(merge2015$SOUS_CHAPITRE)
 ```
 
 ```
 ## 
-##     AUTRE01     AUTRE02     AUTRE03     AUTRE04     AUTRE05     AUTRE06 
-##         952        1455         153          92         809         405 
-##     AUTRE07   CARDIOV01   CARDIOV02   CARDIOV03   CARDIOV04   CARDIOV05 
-##          82         183          73         195          27        2684 
-##   CARDIOV06   CARDIOV07   CARDIOV08   CARDIOV09   CARDIOV10   CARDIOV11 
-##         371         128         146        1226          71         327 
-##   CARDIOV12   CARDIOV13   CARDIOV14     CONT_LS   DERMATO01   DERMATO02 
-##          95         707         155       17603        1929         424 
-##   DERMATO03   DERMATO04   DERMATO05   DERMATO06   DERMATO07   DERMATO08 
-##         597         498         152         290         171         901 
-##   DERMATO09   DERMATO10    DIGEST01    DIGEST02    DIGEST03    DIGEST04 
-##         454         403         141         303        2347        2734 
-##    DIGEST05    DIGEST06    DIGEST07    DIGEST08    DIGEST09    DIGEST10 
-##        5348         616         326         669         850         481 
-##    DIGEST11    DIGEST12    DIGEST13    DIGEST14    DIGEST15      GAUX01 
-##         328         203          86         591         643        1456 
-##      GAUX02      GAUX03      GAUX04      GAUX05      GAUX06  INFECTIO01 
-##         855         484         509        1233         382        1522 
-##  INFECTIO02  INFECTIO03  INFECTIO04  INFECTIO05     INTOX01     INTOX02 
-##        1104         228         270         543         340          53 
-##     INTOX03     INTOX04     MB_ELUX    MB_FRACT      MSLV01      MSLV02 
-##         734         116        9629        7889        2581         397 
-##      MSLV03     NEURO01     NEURO02     NEURO03     NEURO04     NEURO05 
-##        1707         165        1515         179         345        1259 
-##     NEURO06     NEURO07     NEURO08     ORLOS01     ORLOS02     ORLOS03 
-##          80        1846         463        3806         794        1864 
-##     ORLOS04     ORLOS05     ORLOS06     ORLOS07     ORLOS08   PLAIES_CE 
-##         963         532         852         265          14       13075 
-##    PNEUMO01    PNEUMO02    PNEUMO03    PNEUMO04    PNEUMO05    PNEUMO06 
-##         760         618        1131        1020         327         103 
-##    PNEUMO07    PNEUMO08    PNEUMO09    PNEUMO10    PNEUMO11       PSY01 
-##         407         144        1921         134          48         588 
-##       PSY02       PSY03       PSY04   RHUMATO01   RHUMATO02   RHUMATO03 
-##        1466         557         485        1009         170         198 
-##   RHUMATO04   RHUMATO05   RHUMATO06   RHUMATO07  TRAU_COTES  TRAU_CRANE 
-##         337        1033         794         160         428        2535 
-##    TRAU_ODM   TRAU_OPHT   TRAU_PROF TRAU_RACHIS     TRAU_SP    UROGEN01 
-##         443         846         635         841         598        1829 
-##    UROGEN02    UROGEN03    UROGEN04    UROGEN05    UROGEN06    UROGEN07 
-##         139         351          65         324        2196         303 
-##    UROGEN08    UROGEN09    UROGEN10    UROGEN11    UROGEN12    UROGEN13 
-##          48         271         679         277         103          72
+##                                                                                - 
+##                                                                            12325 
+##                                                    Abcès, phlegmons, furoncles,… 
+##                                                                             3249 
+##                                        AEG, asthénie, syndrôme de glissement, .. 
+##                                                                             2166 
+##                            Agitation, trouble de personnalité et du comportement 
+##                                                                             1611 
+##                                    Anémie, aplasie, autre atteinte hématologique 
+##                                                                             1440 
+##                                    Angines, amygdalites, rhino-pharyngites, toux 
+##                                                                             7768 
+##                              Angoisse, stress, trouble névrotique ou somatoforme 
+##                                                                             2287 
+##                                           Angor et autre cardiopathie ischémique 
+##                                                                              509 
+##                                   Appendicite et autre pathologie appendiculaire 
+##                                                                              756 
+##                                                                  Arrêt cardiaque 
+##                                                                              100 
+##                                          Arthralgie, arthrites, tendinites,  ... 
+##                                                                             5128 
+##                                                   Ascite, ictère et hépatopathie 
+##                                                                              571 
+##                                                                           Asthme 
+##                                                                             1776 
+##                                                      Atteintes de nerfs crâniens 
+##                                                                              301 
+##                                                   autre affection dermatologique 
+##                                                                             1019 
+##                                                     autre affection uro-génitale 
+##                                                                              291 
+##                                   autre atteinte des voies aériennes inférieures 
+##                                                                              149 
+##                                     autre atteinte des voies aéro-digestives sup 
+##                                                                               90 
+##                                       autre rhumato et syst nerveux périphérique 
+##                                                                             1195 
+##                                  autres infectiologie générale et sans précision 
+##                                                                             1367 
+##                                                  autres patho cardio-vasculaires 
+##                                                                              442 
+##                                    autres pathologies digestives et alimentaires 
+##                                                                             1511 
+##                                            autres pathologies et signes généraux 
+##                                                                             1640 
+##                                                      autres recours obstétricaux 
+##                                                                              155 
+##                                     AVC, AIT, hémiplégie et syndrômes apparentés 
+##                                                                             2562 
+##                                      BPCO et insuffisance respiratoire chronique 
+##                                                                              951 
+##                                                  Bronchite aiguë et bronchiolite 
+##                                                                             2069 
+##                               Cervicalgie, névralgie et autre atteinte cervicale 
+##                                                                             1057 
+##                                                         Choc cardio-circulatoire 
+##                                                                              299 
+##                                         Colique néphrétique et lithiase urinaire 
+##                                                                             2837 
+##                        Comas, tumeurs, encéphalopathies et autre atteinte du SNC 
+##                                                                              586 
+##                             Constipation et autre trouble fonctionnel intestinal 
+##                                                                             3561 
+##               Contusions et lésions superf cutanéo-muqueuses (hors plaies et CE) 
+##                                                                            26065 
+##                                               Dépression et troubles de l'humeur 
+##                                                                              906 
+##                                             Dermite atopique, de contact, prurit 
+##                                                                              738 
+##                                  Déshydratation et trouble hydro-électrolytiques 
+##                                                                             1024 
+##                                             Désorientation et troubles cognitifs 
+##                                                                              628 
+##                                               Diabète et troubles de la glycémie 
+##                                                                              979 
+##                                                      Diarrhée et gastro-entérite 
+##                                                                             5815 
+##                                                              Dissection aortique 
+##                                                                               34 
+##                                      Dorsalgie et pathologie rachidienne dorsale 
+##                                                                             1065 
+##                                                Douleur abdominale sans précision 
+##                                                                             7922 
+##                                     Douleur de membre, contracture, myalgie, ... 
+##                                                                             5031 
+##                                                   Douleur dentaire, stomatologie 
+##                                                                             1508 
+##                                 Douleur oculaire, conjonctivites, autre ophtalmo 
+##                                                                             5261 
+##                                                                Douleur pelvienne 
+##                                                                              198 
+##                                   Douleur précordiale ou thoracique non élucidée 
+##                                                                             3975 
+##                    Douleurs aiguës et chroniques non précisées, soins palliatifs 
+##                                                                             4114 
+##                                         Douleur testiculaire et autre andrologie 
+##                                                                              777 
+##                                                     Douleur thoracique pariétale 
+##                                                                             1614 
+##                                                     Dyspnée et gène respiratoire 
+##                                                                             1487 
+##                                                               Embolie pulmonaire 
+##                                                                              470 
+##                                                  Entorses et luxations de membre 
+##                                                                            15478 
+##                                   Entorses, fractures et lésions costo-sternales 
+##                                                                              859 
+##                          Entorses, luxations et fractures du rachis ou du bassin 
+##                                                                             1420 
+##                                                         Epilepsie et convulsions 
+##                                                                             2141 
+##                                                                        Epistaxis 
+##                                                                             1259 
+##                                                                        Érysipèle 
+##                                                                              920 
+##                                                     Erythème et autres éruptions 
+##                                                                              830 
+##                                                                           Fièvre 
+##                                                                             2297 
+##                                                              Fractures de membre 
+##                                                                            16509 
+##                                  Fractures OPN, dents et lésions de la mâchoire  
+##                                                                              857 
+##                                Gastrite, Ulcère Gastro-duodénal non hémorragique 
+##                                                                             1290 
+##                                      GEU, fausse couche, hémorragie obstétricale 
+##                                                                              153 
+##                                                                           Grippe 
+##                                                                             1215 
+##                                                                        Hématurie 
+##                                                                              488 
+##                                                                       Hémoptysie 
+##                                                                              156 
+##                                  Hémorragie digestive sans mention de péritonite 
+##                                                                              488 
+##                                                    HTA et poussées tensionnelles 
+##                                                                              607 
+##                                      Hypotension artérielle sans mention de choc 
+##                                                                              195 
+##                                                            Infarctus du myocarde 
+##                                                                              392 
+##                                                    Infection des voies urinaires 
+##                                                                             4182 
+##                                                           Insuffisance cardiaque 
+##                                                                             1831 
+##                                                              Insuffisance rénale 
+##                                                                              513 
+##                                                  Insuffisance respiratoire aiguë 
+##                                                                              632 
+##                                  Laryngite, trachéite et autre atteinte laryngée 
+##                                                                             1037 
+## Lésion prof des tissus (tendons, vx, nerfs,..) ou d'organes internes  (hors TC)  
+##                                                                             1852 
+##                                                 Lésions de l'oeil ou de l'orbite 
+##                                                                             1909 
+##                                      Lésions traumatique autre et sans précision 
+##                                                                             5270 
+##                        Lithiase, infection et autre atteinte des voies biliaires 
+##                                                                             1168 
+##                                      Lombalgie, lombo-sciatique, rachis lombaire 
+##                                                                             4744 
+##                                               Malaises sans PC ou sans précision 
+##                                                                             4562 
+##                          Méningisme, méningite, encéphalite et infections du SNC 
+##                                                                              146 
+##                                  Méno - métrorragie et autre hémorragie génitale 
+##                                                                              118 
+##                                                            Migraine et céphalées 
+##                                                                             2922 
+##                               Mycoses, parasitoses et autres infections cutanées 
+##                                                                              285 
+##                                                            Nausées, vomissements 
+##                                                                             1266 
+##                                                          Occlusion toute origine 
+##                                                                              738 
+##                                                  Oedeme et tuméfaction localisés 
+##                                                                              560 
+##                                         Oesophagite et reflux gastro-oesophagien 
+##                                                                              535 
+##                                 Otalgie, otites et autre pathologies otologiques 
+##                                                                             3005 
+##                                  Pancréatite aiguë et autre atteinte du pancréas 
+##                                                                              474 
+##                                                                      Péricardite 
+##                                                                              133 
+##                                                         Péritonite toute origine 
+##                                                                              206 
+##                                                            Phlébite périphérique 
+##                                                                              448 
+##                                            Piqûres d'arthropode, d'insectes, ... 
+##                                                                              568 
+##                                        Plaies et corps étrangers cutanéo-muqueux 
+##                                                                            22576 
+##                                                 Pleurésie et épanchement pleural 
+##                                                                              216 
+##                                                                     Pneumopathie 
+##                                                                             3691 
+##                                                     Pneumothorax non traumatique 
+##                                                                              223 
+##                                                                      Proctologie 
+##                                                                             1279 
+##                                                    Prostatite, orchi-épididymite 
+##                                                                              558 
+##                                         Rétention urinaire, pb de sonde, dysurie 
+##                                                                             1061 
+##                                            Schizophrénie, délire, hallucinations 
+##                                                                              873 
+##                                                            Septicémies et sepsis 
+##                                                                              366 
+##                                                   Sinusites aiguës et chroniques 
+##                                                                              406 
+##                                  Sujet en contact avec une maladie transmissible 
+##                                                                              457 
+##                                        Syncopes, lipothymies et malaises avec PC 
+##                                                                              602 
+##                                                Thrombose artérielle périphérique 
+##                                                                              163 
+##                                                            Traumatismes crâniens 
+##                                                                             6763 
+##                                            Trouble du rythme et de la conduction 
+##                                                                             1730 
+##                                   Troubles sensitifs, moteurs et toniques autres 
+##                                                                             1016 
+##                                                                        Urticaire 
+##                                                                             1463 
+##                                             Vertiges et sensations vertigineuses 
+##                                                                             2468 
+##                                                        Viroses cutanéo-muqueuses 
+##                                                                              832 
+##                                Vulvo-vaginites, salpingites et autre gynécologie 
+##                                                                              599
 ```
 
 ```r
 # table des CODE_URGENCE par FINESS
-t <- tapply(merge2015$CODE_URGENCE, list(merge2015$FINESS, merge2015$CODE_URGENCE), length)
+t <- tapply(merge2015$TYPE_URGENCE, list(merge2015$FINESS, merge2015$TYPE_URGENCE), length)
 t
 ```
 
 ```
-##     AUTRE MED-CHIR  PSY TOXICO TRAUMA
-## 3Fr   239     2385   80      1   1805
-## Alk    87      543   25      1    837
-## Ane    NA       NA   NA     NA     NA
-## Col  1267    14384  736    212  12046
-## Dia   284     2832   59     NA   1882
-## Dts    NA      435   NA     NA   3323
-## Geb   254     3016   67     35   4061
-## Hag   350     9840  232    157   6458
-## Hus   185    11030  212    284   4656
-## Mul   639    12203 1241    254   5715
-## Odi    51     2171   36     NA   1655
-## Ros    NA       NA   NA     NA      2
-## Sav    56     1071   62     30   1400
-## Sel   290     5578  108     94   6113
-## Wis   161     2865  136     25   2412
-## HTP    65     2935   58     55   2049
-## NHC    20     1769   44     95    108
+##     Autre recours Médico-chirurgical Psychiatrique Toxicologique
+## 3Fr           514               4684           152            68
+## Alk           163               1134            49            16
+## Ane            NA                 NA            NA            NA
+## Col          2243              25717          1367           915
+## Dia           489               5923           109             3
+## Dts            NA               1618            NA            NA
+## Geb           530               6062           122           111
+## Hag           738              17936           461           468
+## Hus            NA                 NA            NA            NA
+## Mul          1056              18671          1416           696
+## Odi            97               6833            55             2
+## Ros            NA                 NA            NA            NA
+## Sav           149               2640           133            76
+## Sel           785              11274           242           355
+## Wis           409               5398           207            94
+## HTP           450              22884           506           493
+## NHC           138              10008           268           564
+## Emr           324               4812           565           286
+## Hsr            60               2225            25            33
+## Ccm            NA                 NA            NA            NA
+##     Traumatologique
+## 3Fr            3525
+## Alk            1315
+## Ane              NA
+## Col           19205
+## Dia            4012
+## Dts            6080
+## Geb            6659
+## Hag           10948
+## Hus              NA
+## Mul            7819
+## Odi            3048
+## Ros             502
+## Sav            2724
+## Sel           10863
+## Wis            3901
+## HTP           15133
+## NHC             602
+## Emr            3215
+## Hsr               7
+## Ccm              NA
 ```
 
 ```r
-# total colonne et pourcentage
+# somme d'une ligne et % de cas par FINESS
+b <- apply(t, 1, sum, na.rm = TRUE)
+round(t*100/b, 2)
+```
+
+```
+##     Autre recours Médico-chirurgical Psychiatrique Toxicologique
+## 3Fr          5.75                 52          1.70          0.76
+## Alk          6.09                 42          1.83          0.60
+## Ane            NA                 NA            NA            NA
+## Col          4.54                 52          2.76          1.85
+## Dia          4.64                 56          1.03          0.03
+## Dts            NA                 21            NA            NA
+## Geb          3.93                 45          0.90          0.82
+## Hag          2.42                 59          1.51          1.53
+## Hus            NA                 NA            NA            NA
+## Mul          3.56                 63          4.77          2.35
+## Odi          0.97                 68          0.55          0.02
+## Ros            NA                 NA            NA            NA
+## Sav          2.60                 46          2.32          1.33
+## Sel          3.34                 48          1.03          1.51
+## Wis          4.09                 54          2.07          0.94
+## HTP          1.14                 58          1.28          1.25
+## NHC          1.19                 86          2.31          4.87
+## Emr          3.52                 52          6.14          3.11
+## Hsr          2.55                 95          1.06          1.40
+## Ccm            NA                 NA            NA            NA
+##     Traumatologique
+## 3Fr            39.4
+## Alk            49.1
+## Ane              NA
+## Col            38.8
+## Dia            38.1
+## Dts            79.0
+## Geb            49.4
+## Hag            35.8
+## Hus              NA
+## Mul            26.4
+## Odi            30.4
+## Ros           100.0
+## Sav            47.6
+## Sel            46.2
+## Wis            39.0
+## HTP            38.3
+## NHC             5.2
+## Emr            34.9
+## Hsr             0.3
+## Ccm              NA
+```
+
+```r
+# total par colonne et pourcentage
 a <- apply(t, 2, sum, na.rm = TRUE) # somme des colonnes
 a
 ```
 
 ```
-##    AUTRE MED-CHIR      PSY   TOXICO   TRAUMA 
-##     3948    73057     3096     1243    54522
+##      Autre recours Médico-chirurgical      Psychiatrique 
+##               8145             147819               5677 
+##      Toxicologique    Traumatologique 
+##               4180              99558
 ```
 
 ```r
@@ -264,35 +673,10 @@ round(a * 100/sum(a), 2)
 ```
 
 ```
-##    AUTRE MED-CHIR      PSY   TOXICO   TRAUMA 
-##     2.91    53.77     2.28     0.91    40.13
-```
-
-```r
-# somme d'une ligne
-b <- apply(t, 1, sum, na.rm = TRUE)
-round(t*100/b, 2)
-```
-
-```
-##     AUTRE MED-CHIR  PSY TOXICO TRAUMA
-## 3Fr  5.30       53 1.77   0.02   40.0
-## Alk  5.83       36 1.67   0.07   56.1
-## Ane    NA       NA   NA     NA     NA
-## Col  4.42       50 2.57   0.74   42.0
-## Dia  5.62       56 1.17     NA   37.2
-## Dts    NA       12   NA     NA   88.4
-## Geb  3.42       41 0.90   0.47   54.6
-## Hag  2.05       58 1.36   0.92   37.9
-## Hus  1.13       67 1.30   1.74   28.4
-## Mul  3.19       61 6.19   1.27   28.5
-## Odi  1.30       55 0.92     NA   42.3
-## Ros    NA       NA   NA     NA  100.0
-## Sav  2.14       41 2.37   1.15   53.5
-## Sel  2.38       46 0.89   0.77   50.2
-## Wis  2.88       51 2.43   0.45   43.1
-## HTP  1.26       57 1.12   1.07   39.7
-## NHC  0.98       87 2.16   4.67    5.3
+##      Autre recours Médico-chirurgical      Psychiatrique 
+##                3.1               55.7                2.1 
+##      Toxicologique    Traumatologique 
+##                1.6               37.5
 ```
 
 ```r
@@ -301,8 +685,10 @@ t['NHC',]
 ```
 
 ```
-##    AUTRE MED-CHIR      PSY   TOXICO   TRAUMA 
-##       20     1769       44       95      108
+##      Autre recours Médico-chirurgical      Psychiatrique 
+##                138              10008                268 
+##      Toxicologique    Traumatologique 
+##                564                602
 ```
 
 ```r
@@ -310,7 +696,7 @@ sum(t['NHC',])
 ```
 
 ```
-## [1] 2036
+## [1] 11580
 ```
 
 ```r
@@ -318,8 +704,10 @@ t['NHC',] / sum(t['NHC',])
 ```
 
 ```
-##    AUTRE MED-CHIR      PSY   TOXICO   TRAUMA 
-##   0.0098   0.8689   0.0216   0.0467   0.0530
+##      Autre recours Médico-chirurgical      Psychiatrique 
+##              0.012              0.864              0.023 
+##      Toxicologique    Traumatologique 
+##              0.049              0.052
 ```
 
 ```r
@@ -327,19 +715,24 @@ round(t['NHC',]*100 / sum(t['NHC',]), 2)
 ```
 
 ```
-##    AUTRE MED-CHIR      PSY   TOXICO   TRAUMA 
-##     0.98    86.89     2.16     4.67     5.30
+##      Autre recours Médico-chirurgical      Psychiatrique 
+##                1.2               86.4                2.3 
+##      Toxicologique    Traumatologique 
+##                4.9                5.2
 ```
 
 ```r
 # table des CODE_DISCIPLINE par FINESS
-t <- tapply(merge2015$CODE_DISCIPLINE, list(merge2015$FINESS, merge2015$CODE_DISCIPLINE), length)
+t <- tapply(merge2015$CHAPITRE, list(merge2015$FINESS, merge2015$CHAPITRE), length)
 ```
 
+Codes non reconnus
+------------------
 
+De nombreux codes ne sont pas reconnus par le fichier de regroupement. Il faut donc les remplacer par des codes de substitutions reconnus par le fichier de regroupement (orumip). Le nombre de codes de sustitution étant important, il est plus facile de les regrouper dans le fichier __codes_remplacement.csv__ qui peut être mis à jour régulièrement à partir du fichier __codes_remplacement.ods__.
 
-Analyse
-=======
+NB: certains codes restent inexploitables car sans correspondance dans le thésaurus. Par exemple W199 correspond aux chutes sans précisions. D'une manière générale, les codes commençant par U, V, W, X, Y n'ont pas de correspondance. La version 8 du cahier des charges de l'InVS recommande d'appliquer la méthodologie PMSI, c'est à dire de ne pas utiliser les codes qui sont interdits en diagnostic principal. Par exemple le code R53 (malaise et fatigue) n'est pas un DP. Il faut utiliser R53.0 (Altération de l'état général) ou R53.1 (malaise) ou R53.2 (fatigue) qui sont reconnus comme DP.
+
 
 ```r
 library(epicalc)
@@ -353,319 +746,855 @@ library(epicalc)
 ```
 
 ```r
+tab1(merge2015$LIBELLE_CIM10, graph = FALSE)
+```
+
+```
+## Warning in cbind(output0, round(percent0, decimal), c(round(percent1,
+## decimal), : number of rows of result is not a multiple of vector length
+## (arg 3)
+```
+
+```
+## merge2015$LIBELLE_CIM10 : 
+##                                                                                        Frequency
+## Douleurs abdominales, autres et non précisées                                               6984
+## Entorse et foulure de la cheville                                                           6670
+## Plaie ouverte de(s) doigt(s) (sans lésion de l'ongle)                                       4038
+## Douleur thoracique, sans précision                                                          3815
+## Malaise                                                                                     3491
+## Rhinopharyngite (aiguë) [rhume banal]                                                       3390
+## Contusion d'autres parties du poignet et de la main                                         3082
+## Constipation                                                                                3080
+## Commotion cérébrale, sans plaie intracrânienne                                              2701
+## Colique néphrétique, sans précision                                                         2648
+## Douleur au niveau d'un membre                                                               2591
+## Commotion cérébrale                                                                         2566
+## Contusion du genou                                                                          2448
+## Plaie ouverte d'autres parties de la tête                                                   2313
+## Contusion de parties autres et non précisées du pied                                        2276
+## Entorse et foulure de doigt(s)                                                              2266
+## Douleur aiguë                                                                               2117
+## Contusion de(s) doigt(s) sans lésion de l'ongle                                             2023
+## Gastroentérites et colites d’origine infectieuse, autres et non précisées                   1935
+## Douleur, sans précision                                                                     1873
+## Plaie ouverte du poignet et de la main, partie non précisée                                 1781
+## Pneumopathie, sans précision                                                                1691
+## Céphalée                                                                                    1673
+## Plaie ouverte du cuir chevelu                                                               1659
+## Fièvre, sans précision                                                                      1629
+## Autres gastroentérites et colites d'origine infectieuse et non précisée                     1606
+## Autres douleurs thoraciques                                                                 1575
+## Contusion de l'épaule et du bras                                                            1574
+## Lombalgie basse                                                                             1526
+## Troubles mentaux et du comportement liés à l'utilisation d'alcool : intoxication aiguë      1492
+## Contusion du coude                                                                          1351
+## Contusion du thorax                                                                         1340
+## Entorse et foulure de parties autres et non précisées du genou                              1274
+## Épistaxis                                                                                   1259
+## Nausées et vomissements                                                                     1200
+## Allergie, sans précision                                                                    1199
+## Fracture fermée de l'extrémité inférieure du radius                                         1117
+## Dyspnée                                                                                     1104
+## Contusion d'un (des) orteil(s) (sans lésion de l'ongle)                                     1092
+## Insuffisance cardiaque, sans précision                                                      1083
+## Entorse et foulure du poignet                                                               1080
+## Plaie ouverte de la tête, partie non précisée                                               1039
+## Sujet inquiet de son état de santé (sans diagnostic)                                        1030
+## Asthme, sans précision                                                                      1027
+## Altération [baisse] de l'état général                                                       1010
+## Néphrite tubulo-interstitielle aiguë                                                        1006
+## Acte non effectué par décision du sujet pour des raisons autres et non précisées             956
+## Plaie ouverte de la lèvre et de la cavité buccale                                            945
+## Contusion de la cheville                                                                     940
+## Érysipèle                                                                                    920
+## Infection des voies urinaires, siège non précisé                                             914
+## Délivrance d'un certificat médical                                                           894
+## Malaise et fatigue                                                                           882
+## Gastrite, sans précision                                                                     862
+## Fracture fermée du col du fémur                                                              857
+## Entorse et foulure des ligaments latéraux du genou (interne) (externe)                       856
+## Bronchite aiguë, sans précision                                                              846
+## Autres examens à des fins administratives                                                    839
+## Laryngite (aiguë)                                                                            836
+## Contusion des lombes et du bassin                                                            830
+## Commotion cérébrale, avec plaie intracrânienne                                               817
+## Lésion traumatique, sans précision                                                           812
+## Abcès cutané, furoncle et anthrax, sans précision                                            811
+## Chutes à répétition, non classées ailleurs                                                   811
+## Fracture de l'extrémité inférieure du radius                                                 811
+## Étourdissements et éblouissements                                                            803
+## Fracture fermée de parties autres et non précisées du poignet et de la main                  794
+## Plaie ouverte de la paupière et de la région péri-oculaire                                   784
+## Gastroentérites et colites d’origine non précisée                                            779
+## Infarctus cérébral, sans précision                                                           779
+## Épilepsie, sans précision                                                                    771
+## Pharyngite (aiguë), sans précision                                                           742
+## Contusion de la hanche                                                                       734
+## Contusion de parties autres et non précisées de la jambe                                     722
+## Rétention d'urine                                                                            721
+## Cystite, sans précision                                                                      718
+## Plaie ouverte d'autres parties du pied                                                       717
+## Corps étranger dans la cornée                                                                700
+## Entorse et foulure de parties autres et non précisées du pied                                697
+## Fracture fermée d'un autre doigt                                                             686
+## Amygdalite (aiguë), sans précision                                                           671
+## Chute, sans précision, lieu sans précision                                                   663
+## Cystite aiguë                                                                                640
+## Épisode dépressif, sans précision                                                            635
+## Trouble panique [anxiété épisodique paroxystique]                                            634
+## Conjonctivite aiguë, sans précision                                                          633
+## Otite moyenne, sans précision                                                                630
+## Lésion traumatique superficielle de la tête, partie non précisée                             629
+## Entorse et foulure du rachis cervical                                                        626
+## Plaie ouverte d'autres parties du poignet et de la main                                      612
+## Urticaire, sans précision                                                                    611
+## Pneumopathie bactérienne, sans précision                                                     610
+## Myalgie                                                                                      606
+## Plaie ouverte de la tête                                                                     606
+## Syncope et collapsus (sauf choc)                                                             602
+## Rash et autres éruptions cutanées non spécifiques                                            598
+## Lombalgie basse - Région lombaire                                                            597
+## Luxation de l'articulation de l'épaule                                                       589
+## (Other)                                                                                   129877
+## NA's                                                                                         296
+##   Total                                                                                   265675
+##                                                                                          %(NA+)
+## Douleurs abdominales, autres et non précisées                                               2.6
+## Entorse et foulure de la cheville                                                           2.5
+## Plaie ouverte de(s) doigt(s) (sans lésion de l'ongle)                                       1.5
+## Douleur thoracique, sans précision                                                          1.4
+## Malaise                                                                                     1.3
+## Rhinopharyngite (aiguë) [rhume banal]                                                       1.3
+## Contusion d'autres parties du poignet et de la main                                         1.2
+## Constipation                                                                                1.2
+## Commotion cérébrale, sans plaie intracrânienne                                              1.0
+## Colique néphrétique, sans précision                                                         1.0
+## Douleur au niveau d'un membre                                                               1.0
+## Commotion cérébrale                                                                         1.0
+## Contusion du genou                                                                          0.9
+## Plaie ouverte d'autres parties de la tête                                                   0.9
+## Contusion de parties autres et non précisées du pied                                        0.9
+## Entorse et foulure de doigt(s)                                                              0.9
+## Douleur aiguë                                                                               0.8
+## Contusion de(s) doigt(s) sans lésion de l'ongle                                             0.8
+## Gastroentérites et colites d’origine infectieuse, autres et non précisées                   0.7
+## Douleur, sans précision                                                                     0.7
+## Plaie ouverte du poignet et de la main, partie non précisée                                 0.7
+## Pneumopathie, sans précision                                                                0.6
+## Céphalée                                                                                    0.6
+## Plaie ouverte du cuir chevelu                                                               0.6
+## Fièvre, sans précision                                                                      0.6
+## Autres gastroentérites et colites d'origine infectieuse et non précisée                     0.6
+## Autres douleurs thoraciques                                                                 0.6
+## Contusion de l'épaule et du bras                                                            0.6
+## Lombalgie basse                                                                             0.6
+## Troubles mentaux et du comportement liés à l'utilisation d'alcool : intoxication aiguë      0.6
+## Contusion du coude                                                                          0.5
+## Contusion du thorax                                                                         0.5
+## Entorse et foulure de parties autres et non précisées du genou                              0.5
+## Épistaxis                                                                                   0.5
+## Nausées et vomissements                                                                     0.5
+## Allergie, sans précision                                                                    0.5
+## Fracture fermée de l'extrémité inférieure du radius                                         0.4
+## Dyspnée                                                                                     0.4
+## Contusion d'un (des) orteil(s) (sans lésion de l'ongle)                                     0.4
+## Insuffisance cardiaque, sans précision                                                      0.4
+## Entorse et foulure du poignet                                                               0.4
+## Plaie ouverte de la tête, partie non précisée                                               0.4
+## Sujet inquiet de son état de santé (sans diagnostic)                                        0.4
+## Asthme, sans précision                                                                      0.4
+## Altération [baisse] de l'état général                                                       0.4
+## Néphrite tubulo-interstitielle aiguë                                                        0.4
+## Acte non effectué par décision du sujet pour des raisons autres et non précisées            0.4
+## Plaie ouverte de la lèvre et de la cavité buccale                                           0.4
+## Contusion de la cheville                                                                    0.4
+## Érysipèle                                                                                   0.3
+## Infection des voies urinaires, siège non précisé                                            0.3
+## Délivrance d'un certificat médical                                                          0.3
+## Malaise et fatigue                                                                          0.3
+## Gastrite, sans précision                                                                    0.3
+## Fracture fermée du col du fémur                                                             0.3
+## Entorse et foulure des ligaments latéraux du genou (interne) (externe)                      0.3
+## Bronchite aiguë, sans précision                                                             0.3
+## Autres examens à des fins administratives                                                   0.3
+## Laryngite (aiguë)                                                                           0.3
+## Contusion des lombes et du bassin                                                           0.3
+## Commotion cérébrale, avec plaie intracrânienne                                              0.3
+## Lésion traumatique, sans précision                                                          0.3
+## Abcès cutané, furoncle et anthrax, sans précision                                           0.3
+## Chutes à répétition, non classées ailleurs                                                  0.3
+## Fracture de l'extrémité inférieure du radius                                                0.3
+## Étourdissements et éblouissements                                                           0.3
+## Fracture fermée de parties autres et non précisées du poignet et de la main                 0.3
+## Plaie ouverte de la paupière et de la région péri-oculaire                                  0.3
+## Gastroentérites et colites d’origine non précisée                                           0.3
+## Infarctus cérébral, sans précision                                                          0.3
+## Épilepsie, sans précision                                                                   0.3
+## Pharyngite (aiguë), sans précision                                                          0.3
+## Contusion de la hanche                                                                      0.3
+## Contusion de parties autres et non précisées de la jambe                                    0.3
+## Rétention d'urine                                                                           0.3
+## Cystite, sans précision                                                                     0.3
+## Plaie ouverte d'autres parties du pied                                                      0.3
+## Corps étranger dans la cornée                                                               0.3
+## Entorse et foulure de parties autres et non précisées du pied                               0.3
+## Fracture fermée d'un autre doigt                                                            0.3
+## Amygdalite (aiguë), sans précision                                                          0.3
+## Chute, sans précision, lieu sans précision                                                  0.2
+## Cystite aiguë                                                                               0.2
+## Épisode dépressif, sans précision                                                           0.2
+## Trouble panique [anxiété épisodique paroxystique]                                           0.2
+## Conjonctivite aiguë, sans précision                                                         0.2
+## Otite moyenne, sans précision                                                               0.2
+## Lésion traumatique superficielle de la tête, partie non précisée                            0.2
+## Entorse et foulure du rachis cervical                                                       0.2
+## Plaie ouverte d'autres parties du poignet et de la main                                     0.2
+## Urticaire, sans précision                                                                   0.2
+## Pneumopathie bactérienne, sans précision                                                    0.2
+## Myalgie                                                                                     0.2
+## Plaie ouverte de la tête                                                                    0.2
+## Syncope et collapsus (sauf choc)                                                            0.2
+## Rash et autres éruptions cutanées non spécifiques                                           0.2
+## Lombalgie basse - Région lombaire                                                           0.2
+## Luxation de l'articulation de l'épaule                                                      0.2
+## (Other)                                                                                    48.9
+## NA's                                                                                        0.1
+##   Total                                                                                   100.0
+##                                                                                          %(NA-)
+## Douleurs abdominales, autres et non précisées                                               0.0
+## Entorse et foulure de la cheville                                                           0.0
+## Plaie ouverte de(s) doigt(s) (sans lésion de l'ongle)                                       0.0
+## Douleur thoracique, sans précision                                                          0.0
+## Malaise                                                                                     0.0
+## Rhinopharyngite (aiguë) [rhume banal]                                                       0.0
+## Contusion d'autres parties du poignet et de la main                                         0.0
+## Constipation                                                                                0.0
+## Commotion cérébrale, sans plaie intracrânienne                                              0.0
+## Colique néphrétique, sans précision                                                         0.0
+## Douleur au niveau d'un membre                                                               0.2
+## Commotion cérébrale                                                                         0.0
+## Contusion du genou                                                                          0.3
+## Plaie ouverte d'autres parties de la tête                                                   0.0
+## Contusion de parties autres et non précisées du pied                                        0.0
+## Entorse et foulure de doigt(s)                                                              0.0
+## Douleur aiguë                                                                               0.0
+## Contusion de(s) doigt(s) sans lésion de l'ongle                                             0.0
+## Gastroentérites et colites d’origine infectieuse, autres et non précisées                   0.0
+## Douleur, sans précision                                                                     0.0
+## Plaie ouverte du poignet et de la main, partie non précisée                                 0.0
+## Pneumopathie, sans précision                                                                0.0
+## Céphalée                                                                                    0.0
+## Plaie ouverte du cuir chevelu                                                               0.0
+## Fièvre, sans précision                                                                      0.0
+## Autres gastroentérites et colites d'origine infectieuse et non précisée                     0.0
+## Autres douleurs thoraciques                                                                 0.0
+## Contusion de l'épaule et du bras                                                            0.0
+## Lombalgie basse                                                                             0.0
+## Troubles mentaux et du comportement liés à l'utilisation d'alcool : intoxication aiguë      0.0
+## Contusion du coude                                                                          0.0
+## Contusion du thorax                                                                         0.0
+## Entorse et foulure de parties autres et non précisées du genou                              0.0
+## Épistaxis                                                                                   0.0
+## Nausées et vomissements                                                                     0.0
+## Allergie, sans précision                                                                    0.0
+## Fracture fermée de l'extrémité inférieure du radius                                         0.0
+## Dyspnée                                                                                     0.0
+## Contusion d'un (des) orteil(s) (sans lésion de l'ongle)                                     0.0
+## Insuffisance cardiaque, sans précision                                                      0.0
+## Entorse et foulure du poignet                                                               0.0
+## Plaie ouverte de la tête, partie non précisée                                               0.0
+## Sujet inquiet de son état de santé (sans diagnostic)                                        0.0
+## Asthme, sans précision                                                                      0.0
+## Altération [baisse] de l'état général                                                       0.0
+## Néphrite tubulo-interstitielle aiguë                                                        0.0
+## Acte non effectué par décision du sujet pour des raisons autres et non précisées            0.0
+## Plaie ouverte de la lèvre et de la cavité buccale                                           0.0
+## Contusion de la cheville                                                                    0.0
+## Érysipèle                                                                                   0.0
+## Infection des voies urinaires, siège non précisé                                            0.0
+## Délivrance d'un certificat médical                                                          0.0
+## Malaise et fatigue                                                                          0.0
+## Gastrite, sans précision                                                                    0.0
+## Fracture fermée du col du fémur                                                             0.0
+## Entorse et foulure des ligaments latéraux du genou (interne) (externe)                      0.0
+## Bronchite aiguë, sans précision                                                             0.0
+## Autres examens à des fins administratives                                                   0.0
+## Laryngite (aiguë)                                                                           0.0
+## Contusion des lombes et du bassin                                                           0.0
+## Commotion cérébrale, avec plaie intracrânienne                                              0.0
+## Lésion traumatique, sans précision                                                          0.0
+## Abcès cutané, furoncle et anthrax, sans précision                                           0.0
+## Chutes à répétition, non classées ailleurs                                                  0.0
+## Fracture de l'extrémité inférieure du radius                                                0.0
+## Étourdissements et éblouissements                                                           0.0
+## Fracture fermée de parties autres et non précisées du poignet et de la main                 0.0
+## Plaie ouverte de la paupière et de la région péri-oculaire                                  0.0
+## Gastroentérites et colites d’origine non précisée                                           0.0
+## Infarctus cérébral, sans précision                                                          0.0
+## Épilepsie, sans précision                                                                   0.0
+## Pharyngite (aiguë), sans précision                                                          0.0
+## Contusion de la hanche                                                                      0.0
+## Contusion de parties autres et non précisées de la jambe                                    0.0
+## Rétention d'urine                                                                           0.0
+## Cystite, sans précision                                                                     0.0
+## Plaie ouverte d'autres parties du pied                                                      0.0
+## Corps étranger dans la cornée                                                               0.0
+## Entorse et foulure de parties autres et non précisées du pied                               0.0
+## Fracture fermée d'un autre doigt                                                            0.0
+## Amygdalite (aiguë), sans précision                                                          0.0
+## Chute, sans précision, lieu sans précision                                                  0.0
+## Cystite aiguë                                                                               0.0
+## Épisode dépressif, sans précision                                                           0.0
+## Trouble panique [anxiété épisodique paroxystique]                                           0.0
+## Conjonctivite aiguë, sans précision                                                         0.0
+## Otite moyenne, sans précision                                                               0.0
+## Lésion traumatique superficielle de la tête, partie non précisée                            0.0
+## Entorse et foulure du rachis cervical                                                       0.0
+## Plaie ouverte d'autres parties du poignet et de la main                                     0.0
+## Urticaire, sans précision                                                                   0.0
+## Pneumopathie bactérienne, sans précision                                                    0.0
+## Myalgie                                                                                     0.0
+## Plaie ouverte de la tête                                                                    0.0
+## Syncope et collapsus (sauf choc)                                                            0.0
+## Rash et autres éruptions cutanées non spécifiques                                           0.0
+## Lombalgie basse - Région lombaire                                                           0.0
+## Luxation de l'articulation de l'épaule                                                      0.0
+## (Other)                                                                                     0.0
+## NA's                                                                                        0.0
+##   Total                                                                                   100.0
+```
+
+```r
+a <- merge2015[is.na(merge2015$LIBELLE_CIM10),]
+x <- cbind(summary(as.factor(a$DP)))
+head(x)
+```
+
+```
+##       [,1]
+## I200+   11
+## N23 0   10
+## W5700    9
+## W0689    6
+## V4259    5
+## W5701    5
+```
+Codes de remplacement
+---------------------
+- S060 commotion cérébrale (DP) -> S0600
+- M796	Douleur au niveau d'un membre (DP) -> M7969
+- R520  Douleur aiguë (DP) -> R529
+- A09  Autres gastroentérites et colites d'origine infectieuse ou non précisée (non DP): -> A090
+- M545  Lombalgie basse (DP) -> M5456
+- F100  Troubles mentaux et du comportement liés à l'utilisation d'alcool : intoxication aiguë (F1000)
+- S836  Entorse et foulure de parties autres et non précisées du genou -> S830
+- Z028  Autres examens à des fins administratives -> Z022
+- S525  Fracture de l'extrémité inférieure du radius	-> 5250
+- T149  Lésion traumatique, sans précision -> T140
+- R53  Malaise et fatigue <- R53+1 (malaises)
+- H669  Otite moyenne, sans précision -> H660
+- J039  Amygdalite , sans précision <- H605
+- H103  Conjonctivite aiguë, sans précision -> H100
+- W199  Chute, sans précision, lieu sans précision -> Pas de correspondance. N'est pas un DP
+- M544  Lumbago avec sciatique -> M5446
+- M791  Myalgie -> M7919
+- J180  Bronchopneumopathie, sans précision	<- J189
+- S626	Fracture d'un autre doigt -> 6260
+- M542	Cervicalgie -> M5422
+
+- M779   M7799
+- M543   M5437
+- T119   T220
+- R002   R000
+- S01    S010
+- H609   H605
+- J31    J310
+- M5459  M5456
+- R10    R100
+- N12    N10
+- T131   S910
+- W570   T634
+- V899   
+- S623   S6230
+- J038   J069
+- H109   H100
+- Y099   
+- T159   T150
+- J03    J00
+- J21    J210
+
+Les codes de remplacement sont stockés dans le fichier __Analyse-regroupements/codes_remplacement.csv__. Le fichier comporte 2 colonnes:
+
+- les codes RPU
+- les codes de remplacement compatibles avec le thésaurus de regroupment
+
+
+Récupération du fichier des codes de substitution:
+
+```r
+# récupère le fichier des codes de substitution
+# mode console: file <- "Analyse_regroupements/codes_remplacement.csv"
+file <- "codes_remplacement.csv"
+sub <- read.csv(file)
+n <- nrow(sub)
+sub$CODE_RPU <- as.character(sub$CODE_RPU)
+sub$SUBSTITUTION <- as.character(sub$SUBSTITUTION)
+```
+
+Le fichier __dpr2__ doit être corrigé avant le merging
+
+```r
+# substitue les codes dans dpr2
+
+load("../Regroupement_ORUMIP/dpr2.Rda")
+load("../Regroupement_ORUMIP/orumip.Rda")
+
+for(i in 1:n){
+  dpr2$DP[dpr2$DP == sub$CODE_RPU[i]] <- sub$SUBSTITUTION[i]
+  }
+
+# merge avec le fichier de regroupement ORUMIP
+
+merge2015 <- merge(dpr2, orumip, by.x = "DP", by.y = "CIM10", all.x = TRUE)
+
+# controle
+a <- merge2015$CODE_URGENCE
+sum(is.na(a))
+```
+
+```
+## Warning in is.na(a): is.na() appliqué à un objet de type 'NULL' qui n'est
+## ni une liste, ni un vecteur
+```
+
+```
+## [1] 0
+```
+
+```r
+a <- merge2015$DP[is.na(merge2015$CODE_URGENCE)]
+```
+
+```
+## Warning in is.na(merge2015$CODE_URGENCE): is.na() appliqué à un objet de
+## type 'NULL' qui n'est ni une liste, ni un vecteur
+```
+
+```r
+head(a)
+```
+
+```
+## character(0)
+```
+
+```r
+head(summary(as.factor(a)))
+```
+
+```
+## integer(0)
+```
+
+```r
+# sauve le fichier merge
+save(merge2015, file = "../Regroupement_ORUMIP/merge2015.Rda") # merge2015
+```
+
+Longueur des codes CIM10
+
+```r
+a <- dpr2$DP
+summary(as.factor(nchar(a)))
+```
+
+```
+##      1      3      4      5      6      7      8     10     15     16 
+##      1  29029 204201  31954    469     13      2      1      1      1 
+##     18     19 
+##      2      1
+```
+
+Codes anormaux
+
+```r
+a[which(nchar(a)==1)]
+```
+
+```
+## [1] "Z"
+```
+
+```r
+a[which(nchar(a)==7)]
+```
+
+```
+##  [1] "S011 02" "S929 01" "G510 02" "S823 01" "S720 02" "S223 01" "S422 02"
+##  [8] "S729 01" "S011 02" "K409 01" "S202 02" "S801 02" "S800 01"
+```
+
+```r
+a[which(nchar(a)==8)]
+```
+
+```
+## [1] "S2250+B6" "S2250+B6"
+```
+
+```r
+a[which(nchar(a)==18)]
+```
+
+```
+## [1] "MM199) ARTHROSE SP" "MM255) ARTHRALGIES"
+```
+
+
+
+Analyse
+=======
+
+d3.Rda devient merge2015 (+++)
+
+
+```r
+library(epicalc)
 path <- "../" # path <- "" en mode console
-load(paste0(path, "d3.Rda")) # d3 est le fichier mergé
+load("../Regroupement_ORUMIP/merge2015.Rda") # d3 est le fichier mergé
 source(paste0(path,"regroupement.R"))
 
-# on réalise un merging des deux fichiers sur la base du code CIM 10
-# d3 <- merge(dpr2, d, by.x = "DP", by.y = "Code", all.x = TRUE)
-
 # affichage des résultats
-summary(d3$TYPE.URGENCES)
+summary(merge2015$TYPE_URGENCES)
 ```
 
 ```
 ##      Autre recours Médico-chirurgical      Psychiatrique 
-##               7441             136816               6185 
+##               8145             147819               5677 
 ##      Toxicologique    Traumatologique               NA's 
-##               4847              91907               1170
+##               4180              99558                296
 ```
 
 ```r
-summary(d3$CHAPITRE)
+summary(merge2015$CHAPITRE)
 ```
 
 ```
 ##                                      autre et sans précision 
-##                                                          196 
+##                                                          268 
 ##                Céphalées, pathologies neurologiques hors SNP 
-##                                                        10813 
+##                                                        10302 
 ##            Demande de certificats, de dépistage, de conseils 
-##                                                         2937 
+##                                                         3053 
 ##          Dermato-allergologie et atteintes cutanéo-muqueuses 
-##                                                         9195 
+##                                                        10464 
 ##                Difficultés psychosociales, socio-économiques 
-##                                                          594 
+##                                                          514 
 ##                 Douleurs abdominales, pathologies digestives 
-##                                                        25893 
+##                                                        27580 
 ##            Douleurs de membre, rhumatologie, orthopédie, SNP 
-##                                                        15907 
+##                                                        19834 
 ##               Douleurs pelviennes, pathologies uro-génitales 
-##                                                        10745 
+##                                                        11930 
 ##         Douleurs thoraciques, pathologies cardio-vasculaires 
-##                                                        11395 
+##                                                        10858 
 ##        Dyspnées, pathologies des voies aériennes inférieures 
-##                                                        12828 
+##                                                        11820 
 ##                             Fièvre et infectiologie générale 
-##                                                         4387 
+##                                                         5702 
 ##             Iatrogénie et complication post chirurgicale SAI 
-##                                                         1650 
+##                                                         1731 
 ##                                      Intoxication alcoolique 
-##                                                         2552 
+##                                                         2308 
 ##                          Intoxication au monoxyde de carbone 
-##                                                          106 
+##                                                           80 
 ##                                  Intoxication médicamenteuse 
-##                                                         1819 
+##                                                         1425 
 ##                         Intoxication par d'autres substances 
-##                                                          370 
+##                                                          367 
 ## Malaises, lipothymies, syncopes, étourdissements et vertiges 
-##                                                         7572 
+##                                                         7632 
 ##            ORL, ophtalmo, stomato et carrefour aéro-digestif 
-##                                                        18051 
+##                                                        20334 
 ##      Recours lié à l'organisation de la continuité des soins 
-##                                                          464 
+##                                                          409 
 ##                      Réorientations, fugues,  refus de soins 
-##                                                         1018 
+##                                                         1277 
 ##                        Signes généraux et autres pathologies 
-##                                                        10030 
+##                                                        11363 
 ##                Soins de contrôle, surveillances et entretien 
-##                                                          582 
+##                                                          893 
 ##                          Traumatisme autre et sans précision 
-##                                                         5200 
+##                                                         6254 
 ##                             Traumatisme de la tête et du cou 
-##                                                        21004 
+##                                                        22271 
 ##                              Traumatisme du membre inférieur 
-##                                                        27465 
+##                                                        29599 
 ##                              Traumatisme du membre supérieur 
-##                                                        32512 
+##                                                        35340 
 ##                         Traumatisme thoraco-abdomino-pelvien 
-##                                                         5726 
+##                                                         6094 
 ##            Troubles du psychisme, pathologies psychiatriques 
-##                                                         6185 
+##                                                         5677 
 ##                                                         NA's 
-##                                                         1170
+##                                                          296
 ```
 
 ```r
-summary(d3$SOUS.CHAPITRE)
+summary(merge2015$SOUS_CHAPITRE)
 ```
 
 ```
 ##               Contusions et lésions superf cutanéo-muqueuses (hors plaies et CE) 
-##                                                                            25482 
+##                                                                            26065 
 ##                                        Plaies et corps étrangers cutanéo-muqueux 
-##                                                                            20221 
+##                                                                            22576 
 ##                                                              Fractures de membre 
-##                                                                            15455 
+##                                                                            16509 
 ##                                                  Entorses et luxations de membre 
-##                                                                            13802 
+##                                                                            15478 
 ##                                                                                - 
-##                                                                            12288 
+##                                                                            12325 
 ##                                                Douleur abdominale sans précision 
-##                                                                             7120 
+##                                                                             7922 
 ##                                    Angines, amygdalites, rhino-pharyngites, toux 
-##                                                                             6969 
+##                                                                             7768 
 ##                                                            Traumatismes crâniens 
-##                                                                             5813 
+##                                                                             6763 
 ##                                                      Diarrhée et gastro-entérite 
-##                                                                             5088 
-##                                 Douleur oculaire, conjonctivites, autre ophtalmo 
-##                                                                             5006 
-##                                               Malaises sans PC ou sans précision 
-##                                                                             4506 
-##                                          Arthralgie, arthrites, tendinites,  ... 
-##                                                                             4471 
-##                                      Lombalgie, lombo-sciatique, rachis lombaire 
-##                                                                             4401 
+##                                                                             5815 
 ##                                      Lésions traumatique autre et sans précision 
-##                                                                             4121 
-##                                                                     Pneumopathie 
-##                                                                             3827 
-##                                   Douleur précordiale ou thoracique non élucidée 
-##                                                                             3775 
-##                                                    Infection des voies urinaires 
-##                                                                             3599 
-##                             Constipation et autre trouble fonctionnel intestinal 
-##                                                                             3582 
-##                                     AVC, AIT, hémiplégie et syndrômes apparentés 
-##                                                                             3041 
-##                    Douleurs aiguës et chroniques non précisées, soins palliatifs 
-##                                                                             2714 
-##                                                            Migraine et céphalées 
-##                                                                             2675 
+##                                                                             5270 
+##                                 Douleur oculaire, conjonctivites, autre ophtalmo 
+##                                                                             5261 
+##                                          Arthralgie, arthrites, tendinites,  ... 
+##                                                                             5128 
 ##                                     Douleur de membre, contracture, myalgie, ... 
-##                                                                             2633 
+##                                                                             5031 
+##                                      Lombalgie, lombo-sciatique, rachis lombaire 
+##                                                                             4744 
+##                                               Malaises sans PC ou sans précision 
+##                                                                             4562 
+##                                                    Infection des voies urinaires 
+##                                                                             4182 
+##                    Douleurs aiguës et chroniques non précisées, soins palliatifs 
+##                                                                             4114 
+##                                   Douleur précordiale ou thoracique non élucidée 
+##                                                                             3975 
+##                                                                     Pneumopathie 
+##                                                                             3691 
+##                             Constipation et autre trouble fonctionnel intestinal 
+##                                                                             3561 
 ##                                                    Abcès, phlegmons, furoncles,… 
-##                                                                             2624 
-##                              Angoisse, stress, trouble névrotique ou somatoforme 
-##                                                                             2503 
-##                                         Colique néphrétique et lithiase urinaire 
-##                                                                             2436 
-##                                                  Bronchite aiguë et bronchiolite 
-##                                                                             2382 
-##                                             Vertiges et sensations vertigineuses 
-##                                                                             2352 
+##                                                                             3249 
 ##                                 Otalgie, otites et autre pathologies otologiques 
-##                                                                             2330 
-##                                                         Epilepsie et convulsions 
-##                                                                             2326 
-##                                        AEG, asthénie, syndrôme de glissement, .. 
-##                                                                             2249 
-##                                                 Lésions de l'oeil ou de l'orbite 
-##                                                                             2158 
-##                                                           Insuffisance cardiaque 
-##                                                                             2099 
-##                                            Trouble du rythme et de la conduction 
-##                                                                             1887 
-## Lésion prof des tissus (tendons, vx, nerfs,..) ou d'organes internes  (hors TC)  
-##                                                                             1876 
-##                                                                           Asthme 
-##                                                                             1789 
+##                                                                             3005 
+##                                                            Migraine et céphalées 
+##                                                                             2922 
+##                                         Colique néphrétique et lithiase urinaire 
+##                                                                             2837 
+##                                     AVC, AIT, hémiplégie et syndrômes apparentés 
+##                                                                             2562 
+##                                             Vertiges et sensations vertigineuses 
+##                                                                             2468 
 ##                                                                           Fièvre 
-##                                                                             1723 
-##                            Agitation, trouble de personnalité et du comportement 
-##                                                                             1720 
-##                                    Anémie, aplasie, autre atteinte hématologique 
-##                                                                             1566 
-##                                                   Douleur dentaire, stomatologie 
-##                                                                             1485 
-##                                                     Dyspnée et gène respiratoire 
-##                                                                             1453 
-##                                                     Douleur thoracique pariétale 
-##                                                                             1429 
-##                                    autres pathologies digestives et alimentaires 
-##                                                                             1418 
-##                          Entorses, luxations et fractures du rachis ou du bassin 
-##                                                                             1387 
-##                                                                        Urticaire 
-##                                                                             1372 
-##                                  autres infectiologie générale et sans précision 
-##                                                                             1368 
+##                                                                             2297 
+##                              Angoisse, stress, trouble névrotique ou somatoforme 
+##                                                                             2287 
+##                                        AEG, asthénie, syndrôme de glissement, .. 
+##                                                                             2166 
+##                                                         Epilepsie et convulsions 
+##                                                                             2141 
+##                                                  Bronchite aiguë et bronchiolite 
+##                                                                             2069 
+##                                                 Lésions de l'oeil ou de l'orbite 
+##                                                                             1909 
+## Lésion prof des tissus (tendons, vx, nerfs,..) ou d'organes internes  (hors TC)  
+##                                                                             1852 
+##                                                           Insuffisance cardiaque 
+##                                                                             1831 
+##                                                                           Asthme 
+##                                                                             1776 
+##                                            Trouble du rythme et de la conduction 
+##                                                                             1730 
 ##                                            autres pathologies et signes généraux 
-##                                                                             1362 
-##                                                                      Proctologie 
-##                                                                             1256 
-##                        Lithiase, infection et autre atteinte des voies biliaires 
-##                                                                             1217 
-##                                      BPCO et insuffisance respiratoire chronique 
-##                                                                             1154 
-##                                                            Nausées, vomissements 
-##                                                                             1111 
-##                                                                        Epistaxis 
-##                                                                             1108 
-##                                  Déshydratation et trouble hydro-électrolytiques 
-##                                                                             1076 
-##                                       autre rhumato et syst nerveux périphérique 
-##                                                                             1064 
-##                                               Diabète et troubles de la glycémie 
-##                                                                             1063 
-##                                            Schizophrénie, délire, hallucinations 
-##                                                                              994 
-##                                               Dépression et troubles de l'humeur 
-##                                                                              968 
-##                               Cervicalgie, névralgie et autre atteinte cervicale 
-##                                                                              958 
+##                                                                             1640 
+##                                                     Douleur thoracique pariétale 
+##                                                                             1614 
+##                            Agitation, trouble de personnalité et du comportement 
+##                                                                             1611 
+##                                    autres pathologies digestives et alimentaires 
+##                                                                             1511 
+##                                                   Douleur dentaire, stomatologie 
+##                                                                             1508 
+##                                                     Dyspnée et gène respiratoire 
+##                                                                             1487 
+##                                                                        Urticaire 
+##                                                                             1463 
+##                                    Anémie, aplasie, autre atteinte hématologique 
+##                                                                             1440 
+##                          Entorses, luxations et fractures du rachis ou du bassin 
+##                                                                             1420 
+##                                  autres infectiologie générale et sans précision 
+##                                                                             1367 
 ##                                Gastrite, Ulcère Gastro-duodénal non hémorragique 
-##                                                                              956 
-##                                   Troubles sensitifs, moteurs et toniques autres 
-##                                                                              953 
-##                                      Dorsalgie et pathologie rachidienne dorsale 
-##                                                                              951 
-##                                         Rétention urinaire, pb de sonde, dysurie 
-##                                                                              937 
-##                                                        Viroses cutanéo-muqueuses 
-##                                                                              929 
-##                                                  Insuffisance respiratoire aiguë 
-##                                                                              916 
-##                                                          Occlusion toute origine 
-##                                                                              878 
-##                                                                        Érysipèle 
-##                                                                              819 
-##                                                     Erythème et autres éruptions 
-##                                                                              809 
-##                                                   autre affection dermatologique 
-##                                                                              807 
-##                                  Fractures OPN, dents et lésions de la mâchoire  
-##                                                                              806 
-##                                   Entorses, fractures et lésions costo-sternales 
-##                                                                              786 
-##                                  Laryngite, trachéite et autre atteinte laryngée 
-##                                                                              765 
-##                                             Dermite atopique, de contact, prurit 
-##                                                                              745 
-##                                             Désorientation et troubles cognitifs 
-##                                                                              737 
-##                                   Appendicite et autre pathologie appendiculaire 
-##                                                                              732 
-##                                        Syncopes, lipothymies et malaises avec PC 
-##                                                                              714 
-##                                                    HTA et poussées tensionnelles 
-##                                                                              712 
-##                                           Angor et autre cardiopathie ischémique 
-##                                                                              686 
-##                                         Douleur testiculaire et autre andrologie 
-##                                                                              680 
-##                                Vulvo-vaginites, salpingites et autre gynécologie 
-##                                                                              638 
-##                                                   Ascite, ictère et hépatopathie 
-##                                                                              628 
-##                        Comas, tumeurs, encéphalopathies et autre atteinte du SNC 
-##                                                                              619 
-##                                         Oesophagite et reflux gastro-oesophagien 
-##                                                                              572 
-##                                                              Insuffisance rénale 
-##                                                                              565 
-##                                  Hémorragie digestive sans mention de péritonite 
-##                                                                              555 
-##                                  Pancréatite aiguë et autre atteinte du pancréas 
-##                                                                              552 
-##                                  Sujet en contact avec une maladie transmissible 
-##                                                                              537 
-##                                                               Embolie pulmonaire 
-##                                                                              525 
-##                                                            Phlébite périphérique 
-##                                                                              508 
-##                                                  autres patho cardio-vasculaires 
-##                                                                              506 
-##                                                    Prostatite, orchi-épididymite 
-##                                                                              472 
-##                                                            Septicémies et sepsis 
-##                                                                              470 
-##                                                  Oedeme et tuméfaction localisés 
-##                                                                              455 
-##                                                                        Hématurie 
-##                                                                              449 
-##                                                            Infarctus du myocarde 
-##                                                                              436 
-##                                            Piqûres d'arthropode, d'insectes, ... 
-##                                                                              356 
-##                                                   Sinusites aiguës et chroniques 
-##                                                                              313 
-##                                                      Atteintes de nerfs crâniens 
-##                                                                              310 
+##                                                                             1290 
+##                                                                      Proctologie 
+##                                                                             1279 
+##                                                            Nausées, vomissements 
+##                                                                             1266 
+##                                                                        Epistaxis 
+##                                                                             1259 
 ##                                                                           Grippe 
-##                                                                              289 
-##                               Mycoses, parasitoses et autres infections cutanées 
-##                                                                              279 
+##                                                                             1215 
+##                                       autre rhumato et syst nerveux périphérique 
+##                                                                             1195 
+##                        Lithiase, infection et autre atteinte des voies biliaires 
+##                                                                             1168 
+##                                      Dorsalgie et pathologie rachidienne dorsale 
+##                                                                             1065 
+##                                         Rétention urinaire, pb de sonde, dysurie 
+##                                                                             1061 
+##                               Cervicalgie, névralgie et autre atteinte cervicale 
+##                                                                             1057 
+##                                  Laryngite, trachéite et autre atteinte laryngée 
+##                                                                             1037 
+##                                  Déshydratation et trouble hydro-électrolytiques 
+##                                                                             1024 
+##                                                   autre affection dermatologique 
+##                                                                             1019 
+##                                   Troubles sensitifs, moteurs et toniques autres 
+##                                                                             1016 
+##                                               Diabète et troubles de la glycémie 
+##                                                                              979 
+##                                      BPCO et insuffisance respiratoire chronique 
+##                                                                              951 
+##                                                                        Érysipèle 
+##                                                                              920 
+##                                               Dépression et troubles de l'humeur 
+##                                                                              906 
+##                                            Schizophrénie, délire, hallucinations 
+##                                                                              873 
+##                                   Entorses, fractures et lésions costo-sternales 
+##                                                                              859 
+##                                  Fractures OPN, dents et lésions de la mâchoire  
+##                                                                              857 
+##                                                        Viroses cutanéo-muqueuses 
+##                                                                              832 
+##                                                     Erythème et autres éruptions 
+##                                                                              830 
+##                                         Douleur testiculaire et autre andrologie 
+##                                                                              777 
+##                                   Appendicite et autre pathologie appendiculaire 
+##                                                                              756 
+##                                             Dermite atopique, de contact, prurit 
+##                                                                              738 
+##                                                          Occlusion toute origine 
+##                                                                              738 
+##                                                  Insuffisance respiratoire aiguë 
+##                                                                              632 
+##                                             Désorientation et troubles cognitifs 
+##                                                                              628 
+##                                                    HTA et poussées tensionnelles 
+##                                                                              607 
+##                                        Syncopes, lipothymies et malaises avec PC 
+##                                                                              602 
+##                                Vulvo-vaginites, salpingites et autre gynécologie 
+##                                                                              599 
+##                        Comas, tumeurs, encéphalopathies et autre atteinte du SNC 
+##                                                                              586 
+##                                                   Ascite, ictère et hépatopathie 
+##                                                                              571 
+##                                            Piqûres d'arthropode, d'insectes, ... 
+##                                                                              568 
+##                                                  Oedeme et tuméfaction localisés 
+##                                                                              560 
+##                                                    Prostatite, orchi-épididymite 
+##                                                                              558 
+##                                         Oesophagite et reflux gastro-oesophagien 
+##                                                                              535 
+##                                                              Insuffisance rénale 
+##                                                                              513 
+##                                           Angor et autre cardiopathie ischémique 
+##                                                                              509 
+##                                                                        Hématurie 
+##                                                                              488 
+##                                  Hémorragie digestive sans mention de péritonite 
+##                                                                              488 
+##                                  Pancréatite aiguë et autre atteinte du pancréas 
+##                                                                              474 
+##                                                               Embolie pulmonaire 
+##                                                                              470 
+##                                  Sujet en contact avec une maladie transmissible 
+##                                                                              457 
+##                                                            Phlébite périphérique 
+##                                                                              448 
+##                                                  autres patho cardio-vasculaires 
+##                                                                              442 
+##                                                   Sinusites aiguës et chroniques 
+##                                                                              406 
+##                                                            Infarctus du myocarde 
+##                                                                              392 
+##                                                            Septicémies et sepsis 
+##                                                                              366 
+##                                                      Atteintes de nerfs crâniens 
+##                                                                              301 
+##                                                         Choc cardio-circulatoire 
+##                                                                              299 
 ##                                                                          (Other) 
-##                                                                             2992 
+##                                                                             3011 
 ##                                                                             NA's 
-##                                                                             1170
+##                                                                              296
 ```
 
 ```r
-tapply(merge2015$CODE_URGENCE, list(merge2015$FINESS, merge2015$CODE_URGENCE), length)
+tapply(merge2015$TYPE_URGENCES, list(merge2015$FINESS, merge2015$TYPE_URGENCES), length)
 ```
 
 ```
-##     AUTRE MED-CHIR  PSY TOXICO TRAUMA
-## 3Fr   239     2385   80      1   1805
-## Alk    87      543   25      1    837
-## Ane    NA       NA   NA     NA     NA
-## Col  1267    14384  736    212  12046
-## Dia   284     2832   59     NA   1882
-## Dts    NA      435   NA     NA   3323
-## Geb   254     3016   67     35   4061
-## Hag   350     9840  232    157   6458
-## Hus   185    11030  212    284   4656
-## Mul   639    12203 1241    254   5715
-## Odi    51     2171   36     NA   1655
-## Ros    NA       NA   NA     NA      2
-## Sav    56     1071   62     30   1400
-## Sel   290     5578  108     94   6113
-## Wis   161     2865  136     25   2412
-## HTP    65     2935   58     55   2049
-## NHC    20     1769   44     95    108
+##     Autre recours Médico-chirurgical Psychiatrique Toxicologique
+## 3Fr           514               4684           152            68
+## Alk           163               1134            49            16
+## Ane            NA                 NA            NA            NA
+## Col          2243              25717          1367           915
+## Dia           489               5923           109             3
+## Dts            NA               1618            NA            NA
+## Geb           530               6062           122           111
+## Hag           738              17936           461           468
+## Hus            NA                 NA            NA            NA
+## Mul          1056              18671          1416           696
+## Odi            97               6833            55             2
+## Ros            NA                 NA            NA            NA
+## Sav           149               2640           133            76
+## Sel           785              11274           242           355
+## Wis           409               5398           207            94
+## HTP           450              22884           506           493
+## NHC           138              10008           268           564
+## Emr           324               4812           565           286
+## Hsr            60               2225            25            33
+## Ccm            NA                 NA            NA            NA
+##     Traumatologique
+## 3Fr            3525
+## Alk            1315
+## Ane              NA
+## Col           19205
+## Dia            4012
+## Dts            6080
+## Geb            6659
+## Hag           10948
+## Hus              NA
+## Mul            7819
+## Odi            3048
+## Ros             502
+## Sav            2724
+## Sel           10863
+## Wis            3901
+## HTP           15133
+## NHC             602
+## Emr            3215
+## Hsr               7
+## Ccm              NA
 ```
 
 
@@ -675,944 +1604,4 @@ Au moment du merging on veut que toute la colonne DP soit prise en compte. Il fa
 ![img](326775.image0.jpg). 
 
 Explications: [How to Use the merge() Function with Data Sets in R](http://www.dummies.com/how-to/content/how-to-use-the-merge-function-with-data-sets-in-r.html). Les codes n'ayant pas de correspondance FEDORU sont marqués NA. 
-
-Type d'urgence
----------------
-
-```r
-n.type <- nrow(d3)
-s.type <- summary(d3$TYPE.URGENCES)
-s.type
-```
-
-```
-##      Autre recours Médico-chirurgical      Psychiatrique 
-##               7441             136816               6185 
-##      Toxicologique    Traumatologique               NA's 
-##               4847              91907               1170
-```
-
-```r
-pie(s.type)
-```
-
-![](analyse_regroup_files/figure-html/type_urgence-1.png) 
-
-```r
-barplot(sort(s.type, decreasing = TRUE), las = 2, cex.names = 0.6, main = "Répartition des diagnostics principaux \nselon les codes de regroupement de l' ORUMIP")
-```
-
-![](analyse_regroup_files/figure-html/type_urgence-2.png) 
-
-```r
-tab1(d3$TYPE.URGENCES, sort.group = "decreasing", cex.names = 0.6, main = "Répartition des diagnostics principaux \nselon les codes de regroupement de l' ORUMIP")
-```
-
-![](analyse_regroup_files/figure-html/type_urgence-3.png) 
-
-```
-## d3$TYPE.URGENCES : 
-##                    Frequency   %(NA+)   %(NA-)
-## Médico-chirurgical    136816     55.1     55.3
-## Traumatologique        91907     37.0     37.2
-## Autre recours           7441      3.0      3.0
-## Psychiatrique           6185      2.5      2.5
-## Toxicologique           4847      2.0      2.0
-## NA's                    1170      0.5      0.0
-##   Total               248366    100.0    100.0
-```
-1170 codes de sont pas reconnus (`s.type["NA's"]*100/n.type` %).
-
-
-```r
-a <- d3[is.na(d3$TYPE.URGENCES),]
-cbind(summary(as.factor(a$DP)))
-```
-
-```
-##         [,1]
-## H60,9     47
-## Y3492     46
-## S525 01   36
-## S525 02   36
-## R073 01   27
-## S422 01   23
-## S818 01   23
-## S818 02   20
-## S826 02   17
-## S422 02   16
-## G580 01   14
-## S202 01   13
-## S826 01   13
-## S934 02   13
-## S202 02   12
-## S223 02   12
-## S424 02   12
-## S860 02   12
-## S903 02   12
-## S810 01   11
-## S824 01   11
-## S824 02   11
-## T159 02   11
-## S011 02   10
-## S424 01   10
-## S521 01   10
-## S526 02   10
-## S510 02    9
-## S521 02    9
-## S729 01    9
-## S810 02    9
-## S903 01    9
-## S923 01    9
-## S934 01    9
-## J189 01    8
-## M751 02    8
-## R073 02    8
-## S518 02    8
-## S823 02    8
-## S923 02    8
-## S924 01    8
-## H919 01    7
-## N23 02     7
-## S400 01    7
-## S400 02    7
-## S510 01    7
-## S800 01    7
-## M751 01    6
-## N23 01     6
-## S011 01    6
-## S431 01    6
-## S526 01    6
-## S531 01    6
-## S711 01    6
-## S720 01    6
-## S720 02    6
-## S800 02    6
-## S801 02    6
-## S924 02    6
-## S223 01    5
-## S431 02    5
-## S498 01    5
-## S500 01    5
-## S518 01    5
-## S602 02    5
-## S701 01    5
-## S701 02    5
-## S801 01    5
-## S825 01    5
-## S834 01    5
-## V4259      5
-## G580 02    4
-## H612 02    4
-## H920 02    4
-## S015 01    4
-## S430 02    4
-## S522 02    4
-## S523 02    4
-## S711 02    4
-## S729 02    4
-## S821 02    4
-## S823 01    4
-## S836 01    4
-## S900 01    4
-## S913 01    4
-## S913 02    4
-## S929 02    4
-## S936 01    4
-## T159 01    4
-## V4608      4
-## G500 01    3
-## H539 01    3
-## H539 02    3
-## H920 01    3
-## I802 02    3
-## J939 02    3
-## S270 01    3
-## S420 01    3
-## S434 02    3
-## (Other)  286
-```
-- Plus de la moitié des codes concernent __R53+0__, __R53+1__ et __R53+2__ qui sont des codes PMSI. _R53_ = Malaise et fatigue.
-- r11 = vomissements: pb de casse
-- B99+1 = Syndrome infectieux sans cause trouvée
-
-Par type d'urgence
-==================
-
-Le regroupement principal de l'ORUMIP comprend les chapitres suivants:
-
-```
-[1] "Autre recours"      "Médico-chirurgical" "Psychiatrique"     
-[4] "Toxicologique"      "Traumatologique"   
-```
-
-Analyse des urgences médico-chirurgicales
------------------------------------------
-
-```r
-s.type <- summary(d3$TYPE.URGENCES)
-sort(s.type, decreasing = TRUE)
-```
-
-```
-## Médico-chirurgical    Traumatologique      Autre recours 
-##             136816              91907               7441 
-##      Psychiatrique      Toxicologique               NA's 
-##               6185               4847               1170
-```
-
-```r
-medic <- d3[d3$TYPE.URGENCES == "Médico-chirurgical",]
-
-tab1(factor(medic$CHAPITRE), sort.group = "decreasing", bar.values = "percent", cex.names = 0.8, main = "Médico-chirurgical")
-```
-
-![](analyse_regroup_files/figure-html/chapitre-1.png) 
-
-```
-## factor(medic$CHAPITRE) : 
-##                                                              Frequency
-## Douleurs abdominales, pathologies digestives                     25893
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                18051
-## Douleurs de membre, rhumatologie, orthopédie, SNP                15907
-## Dyspnées, pathologies des voies aériennes inférieures            12828
-## Douleurs thoraciques, pathologies cardio-vasculaires             11395
-## Céphalées, pathologies neurologiques hors SNP                    10813
-## Douleurs pelviennes, pathologies uro-génitales                   10745
-## Signes généraux et autres pathologies                            10030
-## Dermato-allergologie et atteintes cutanéo-muqueuses               9195
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      7572
-## Fièvre et infectiologie générale                                  4387
-## NA's                                                              1170
-##   Total                                                         137986
-##                                                                %(NA+)
-## Douleurs abdominales, pathologies digestives                     18.8
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                13.1
-## Douleurs de membre, rhumatologie, orthopédie, SNP                11.5
-## Dyspnées, pathologies des voies aériennes inférieures             9.3
-## Douleurs thoraciques, pathologies cardio-vasculaires              8.3
-## Céphalées, pathologies neurologiques hors SNP                     7.8
-## Douleurs pelviennes, pathologies uro-génitales                    7.8
-## Signes généraux et autres pathologies                             7.3
-## Dermato-allergologie et atteintes cutanéo-muqueuses               6.7
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      5.5
-## Fièvre et infectiologie générale                                  3.2
-## NA's                                                              0.8
-##   Total                                                         100.0
-##                                                                %(NA-)
-## Douleurs abdominales, pathologies digestives                     18.9
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                13.2
-## Douleurs de membre, rhumatologie, orthopédie, SNP                11.6
-## Dyspnées, pathologies des voies aériennes inférieures             9.4
-## Douleurs thoraciques, pathologies cardio-vasculaires              8.3
-## Céphalées, pathologies neurologiques hors SNP                     7.9
-## Douleurs pelviennes, pathologies uro-génitales                    7.9
-## Signes généraux et autres pathologies                             7.3
-## Dermato-allergologie et atteintes cutanéo-muqueuses               6.7
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      5.5
-## Fièvre et infectiologie générale                                  3.2
-## NA's                                                              0.0
-##   Total                                                         100.0
-```
-
-Analyse des urgences médico-chirurgicales
------------------------------------------
-![](analyse_regroup_files/figure-html/urg_traumato-1.png) 
-
-```
-## factor(trauma$CHAPITRE) : 
-##                                      Frequency   %(NA+)   %(NA-)
-## Traumatisme du membre supérieur          32512     34.9     35.4
-## Traumatisme du membre inférieur          27465     29.5     29.9
-## Traumatisme de la tête et du cou         21004     22.6     22.9
-## Traumatisme thoraco-abdomino-pelvien      5726      6.2      6.2
-## Traumatisme autre et sans précision       5200      5.6      5.7
-## NA's                                      1170      1.3      0.0
-##   Total                                  93077    100.0    100.0
-```
-
-Par age
-=======
-
-Adultes (18 à 75 ans)
----------------------
-
-```r
-d3a <- d3[d3$AGE > 17 & d3$AGE < 76,]
-n.adl <- nrow(d3a)
-
-# table fréquence
-s.type.adl <- table(d3a$TYPE.URGENCES)
-s.type.adl
-```
-
-```
-## 
-##      Autre recours Médico-chirurgical      Psychiatrique 
-##               5025              74304               5087 
-##      Toxicologique    Traumatologique 
-##               4135              50470
-```
-
-```r
-# table des proportion
-p.type.adl <- round(prop.table(s.type.adl) * 100, 2)
-p.type.adl
-```
-
-```
-## 
-##      Autre recours Médico-chirurgical      Psychiatrique 
-##                3.6               53.5                3.7 
-##      Toxicologique    Traumatologique 
-##                3.0               36.3
-```
-
-```r
-pie(s.type.adl, main = "Adultes", cex=0.8, col = palette(heat.colors(6)))
-```
-
-![](analyse_regroup_files/figure-html/adultes-1.png) 
-
-```r
-taba <- tab1(d3a$TYPE.URGENCES, sort.group = "decreasing", bar.values = "percent", cex.names = 0.8, main = paste0("Médico-chirurgical adulte (N = ", n.adl, ")"), missing = FALSE)
-```
-
-![](analyse_regroup_files/figure-html/adultes-2.png) 
-
-
-Pédiatrie (age < 18 ans)
-------------------------
-
-```r
-d3p <- d3[d3$AGE < 18,]
-n.ped<- nrow(d3p)
-
-s.type.ped <- table(d3p$TYPE.URGENCES)
-sort(s.type.ped, decreasing = TRUE)
-```
-
-```
-## 
-## Médico-chirurgical    Traumatologique      Autre recours 
-##              38406              32954               1864 
-##      Psychiatrique      Toxicologique 
-##                698                525
-```
-
-```r
-pie(s.type.ped, main = "Pédiatrie", cex=0.8, col = palette(heat.colors(6)))
-```
-
-![](analyse_regroup_files/figure-html/ped-1.png) 
-
-```r
-tabp <- tab1(d3p$TYPE.URGENCES, sort.group = "decreasing", bar.values = "percent", cex.names = 0.8, main = paste0("Médico-chirurgical pédiatrique (N = ", n.ped, ")"), missing = FALSE)
-```
-
-![](analyse_regroup_files/figure-html/ped-2.png) 
-
-Gériatrie (age > 75 ans)
-------------------------
-
-```r
-d3g <- d3[d3$AGE > 75,]
-n.ger <- nrow(d3g)
-
-s.type.ger <- table(d3g$TYPE.URGENCES)
-sort(s.type.ger, decreasing = TRUE)
-```
-
-```
-## 
-## Médico-chirurgical    Traumatologique      Autre recours 
-##              24106               8483                552 
-##      Psychiatrique      Toxicologique 
-##                400                187
-```
-
-```r
-pie(sort(s.type.ger), main = "Gériatrie", cex=0.8, col = palette(heat.colors(6)))
-```
-
-![](analyse_regroup_files/figure-html/geriatrie-1.png) 
-
-```r
-tabp <- tab1(d3g$TYPE.URGENCES, sort.group = "decreasing", bar.values = "percent", cex.names = 0.8, main = paste0("Médico-chirurgical gériatrique (N = ", n.ger, ")"), missing = FALSE)
-```
-
-![](analyse_regroup_files/figure-html/geriatrie-2.png) 
-
-Synthèse
---------
-
-```r
-# table de regroupement
-t.type <- rbind(s.type.adl, s.type.ped, s.type.ger)
-t.type
-```
-
-```
-##            Autre recours Médico-chirurgical Psychiatrique Toxicologique
-## s.type.adl          5025              74304          5087          4135
-## s.type.ped          1864              38406           698           525
-## s.type.ger           552              24106           400           187
-##            Traumatologique
-## s.type.adl           50470
-## s.type.ped           32954
-## s.type.ger            8483
-```
-
-```r
-barplot(t.type)
-```
-
-![](analyse_regroup_files/figure-html/synthese-1.png) 
-
-```r
-# en pourcentages
-p.type <- round(prop.table(t.type, margin = 1)*100, 2)
-p.type
-```
-
-```
-##            Autre recours Médico-chirurgical Psychiatrique Toxicologique
-## s.type.adl           3.6                 53          3.66          2.97
-## s.type.ped           2.5                 52          0.94          0.71
-## s.type.ger           1.6                 71          1.19          0.55
-##            Traumatologique
-## s.type.adl              36
-## s.type.ped              44
-## s.type.ger              25
-```
-
-```r
-color <- c("red", "green", "yellow")
-barplot(p.type, cex.names = 0.6)
-```
-
-![](analyse_regroup_files/figure-html/synthese-2.png) 
-
-```r
-barplot(p.type, cex.names = 0.6, beside = TRUE, col = color, main = "Pathologies selon l'age")
-legend("topright", legend = c("18-75 ans","0-18 ans","Sup.75 ans"), col = color, pch = 15)
-```
-
-![](analyse_regroup_files/figure-html/synthese-3.png) 
-
-Par chapitre
-============
-
-Adultes
---------
-### Pathologie médico-chirurgicale
-
-```r
-medic.adl <- d3a[d3a$TYPE.URGENCES == "Médico-chirurgical",]
-n.medic.adl <- nrow(medic.adl)
-s.medic.adl <- table(factor(medic.adl$CHAPITRE))
-p.medic.adl <- round(prop.table(s.medic.adl)*100, 2)
-sort(p.medic.adl, decreasing = TRUE)
-```
-
-```
-## 
-##                 Douleurs abdominales, pathologies digestives 
-##                                                         17.8 
-##            Douleurs de membre, rhumatologie, orthopédie, SNP 
-##                                                         16.4 
-##         Douleurs thoraciques, pathologies cardio-vasculaires 
-##                                                          9.6 
-##            ORL, ophtalmo, stomato et carrefour aéro-digestif 
-##                                                          9.6 
-##               Douleurs pelviennes, pathologies uro-génitales 
-##                                                          9.2 
-##                Céphalées, pathologies neurologiques hors SNP 
-##                                                          8.8 
-##        Dyspnées, pathologies des voies aériennes inférieures 
-##                                                          6.9 
-## Malaises, lipothymies, syncopes, étourdissements et vertiges 
-##                                                          6.5 
-##          Dermato-allergologie et atteintes cutanéo-muqueuses 
-##                                                          6.3 
-##                        Signes généraux et autres pathologies 
-##                                                          6.3 
-##                             Fièvre et infectiologie générale 
-##                                                          2.5
-```
-
-```r
-tab1(factor(medic.adl$CHAPITRE), cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Médico-chir adultes", bar.values = "percent")
-```
-
-![](analyse_regroup_files/figure-html/chap_adultes-1.png) 
-
-```
-## factor(medic.adl$CHAPITRE) : 
-##                                                              Frequency
-## Douleurs abdominales, pathologies digestives                     13232
-## Douleurs de membre, rhumatologie, orthopédie, SNP                12200
-## Douleurs thoraciques, pathologies cardio-vasculaires              7161
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 7125
-## Douleurs pelviennes, pathologies uro-génitales                    6852
-## Céphalées, pathologies neurologiques hors SNP                     6573
-## Dyspnées, pathologies des voies aériennes inférieures             5120
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      4825
-## Dermato-allergologie et atteintes cutanéo-muqueuses               4706
-## Signes généraux et autres pathologies                             4657
-## Fièvre et infectiologie générale                                  1853
-## NA's                                                               775
-##   Total                                                          75079
-##                                                                %(NA+)
-## Douleurs abdominales, pathologies digestives                     17.6
-## Douleurs de membre, rhumatologie, orthopédie, SNP                16.2
-## Douleurs thoraciques, pathologies cardio-vasculaires              9.5
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 9.5
-## Douleurs pelviennes, pathologies uro-génitales                    9.1
-## Céphalées, pathologies neurologiques hors SNP                     8.8
-## Dyspnées, pathologies des voies aériennes inférieures             6.8
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      6.4
-## Dermato-allergologie et atteintes cutanéo-muqueuses               6.3
-## Signes généraux et autres pathologies                             6.2
-## Fièvre et infectiologie générale                                  2.5
-## NA's                                                              1.0
-##   Total                                                         100.0
-##                                                                %(NA-)
-## Douleurs abdominales, pathologies digestives                     17.8
-## Douleurs de membre, rhumatologie, orthopédie, SNP                16.4
-## Douleurs thoraciques, pathologies cardio-vasculaires              9.6
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 9.6
-## Douleurs pelviennes, pathologies uro-génitales                    9.2
-## Céphalées, pathologies neurologiques hors SNP                     8.8
-## Dyspnées, pathologies des voies aériennes inférieures             6.9
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      6.5
-## Dermato-allergologie et atteintes cutanéo-muqueuses               6.3
-## Signes généraux et autres pathologies                             6.3
-## Fièvre et infectiologie générale                                  2.5
-## NA's                                                              0.0
-##   Total                                                         100.0
-```
-### Pathologie traumatique
-
-```r
-trauma.adl <- d3a[d3a$TYPE.URGENCES == "Traumatologique",]
-n.trauma.adl <- nrow(trauma.adl)
-s.trauma.adl <- table(factor(trauma.adl$CHAPITRE))
-p.trauma.adl <- round(prop.table(s.trauma.adl)*100, 2)
-sort(p.trauma.adl, decreasing = TRUE)
-```
-
-```
-## 
-##      Traumatisme du membre supérieur      Traumatisme du membre inférieur 
-##                                 37.0                                 31.2 
-##     Traumatisme de la tête et du cou Traumatisme thoraco-abdomino-pelvien 
-##                                 18.1                                  7.4 
-##  Traumatisme autre et sans précision 
-##                                  6.3
-```
-
-```r
-tab1(factor(trauma.adl$CHAPITRE), cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Traumatologie adultes", bar.values = "percent", horiz = TRUE)
-```
-
-![](analyse_regroup_files/figure-html/trauma_adulte-1.png) 
-
-```
-## factor(trauma.adl$CHAPITRE) : 
-##                                      Frequency   %(NA+)   %(NA-)
-## Traumatisme du membre supérieur          18675     36.4     37.0
-## Traumatisme du membre inférieur          15740     30.7     31.2
-## Traumatisme de la tête et du cou          9141     17.8     18.1
-## Traumatisme thoraco-abdomino-pelvien      3721      7.3      7.4
-## Traumatisme autre et sans précision       3193      6.2      6.3
-## NA's                                       775      1.5      0.0
-##   Total                                  51245    100.0    100.0
-```
-
-Enfants
--------
-### Pathologie médico-chirurgicale pédiatrique
-
-```r
-f <- groupe.pathologique(d3p, "medchir")
-tab1(f$data, cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Médico-chir pédiatrique", bar.values = "percent")
-```
-
-![](analyse_regroup_files/figure-html/chap_ped_med-1.png) 
-
-```
-## f$data : 
-##                                                              Frequency
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 9733
-## Douleurs abdominales, pathologies digestives                      9551
-## Dyspnées, pathologies des voies aériennes inférieures             3915
-## Dermato-allergologie et atteintes cutanéo-muqueuses               3808
-## Signes généraux et autres pathologies                             2410
-## Douleurs pelviennes, pathologies uro-génitales                    2181
-## Fièvre et infectiologie générale                                  2041
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 2010
-## Céphalées, pathologies neurologiques hors SNP                     1522
-## Malaises, lipothymies, syncopes, étourdissements et vertiges       861
-## Douleurs thoraciques, pathologies cardio-vasculaires               374
-## NA's                                                               264
-##   Total                                                          38670
-##                                                                %(NA+)
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                25.2
-## Douleurs abdominales, pathologies digestives                     24.7
-## Dyspnées, pathologies des voies aériennes inférieures            10.1
-## Dermato-allergologie et atteintes cutanéo-muqueuses               9.8
-## Signes généraux et autres pathologies                             6.2
-## Douleurs pelviennes, pathologies uro-génitales                    5.6
-## Fièvre et infectiologie générale                                  5.3
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 5.2
-## Céphalées, pathologies neurologiques hors SNP                     3.9
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      2.2
-## Douleurs thoraciques, pathologies cardio-vasculaires              1.0
-## NA's                                                              0.7
-##   Total                                                         100.0
-##                                                                %(NA-)
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                25.3
-## Douleurs abdominales, pathologies digestives                     24.9
-## Dyspnées, pathologies des voies aériennes inférieures            10.2
-## Dermato-allergologie et atteintes cutanéo-muqueuses               9.9
-## Signes généraux et autres pathologies                             6.3
-## Douleurs pelviennes, pathologies uro-génitales                    5.7
-## Fièvre et infectiologie générale                                  5.3
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 5.2
-## Céphalées, pathologies neurologiques hors SNP                     4.0
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      2.2
-## Douleurs thoraciques, pathologies cardio-vasculaires              1.0
-## NA's                                                              0.0
-##   Total                                                         100.0
-```
-
-### Pathologie traumatique pédiatrique
-
-```r
-f <- groupe.pathologique(d3p, "trau")
-tab1(f$data, cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Traumatologie pédiatrique", bar.values = "percent")
-```
-
-![](analyse_regroup_files/figure-html/chap_ped_trau-1.png) 
-
-```
-## f$data : 
-##                                      Frequency   %(NA+)   %(NA-)
-## Traumatisme du membre supérieur          11702     35.2     35.5
-## Traumatisme de la tête et du cou          9873     29.7     30.0
-## Traumatisme du membre inférieur           8979     27.0     27.2
-## Traumatisme autre et sans précision       1239      3.7      3.8
-## Traumatisme thoraco-abdomino-pelvien      1161      3.5      3.5
-## NA's                                       264      0.8      0.0
-##   Total                                  33218    100.0    100.0
-```
-
-Gériatrie
----------
-### Pathologie médico-chirurgicale gériatrique
-
-```r
-f <- groupe.pathologique(d3g, "medchir")
-tab1(f$data, cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Médico-chir gériatrique", bar.values = "percent")
-```
-
-![](analyse_regroup_files/figure-html/chap_ger_med-1.png) 
-
-```
-## f$data : 
-##                                                              Frequency
-## Douleurs thoraciques, pathologies cardio-vasculaires              3860
-## Dyspnées, pathologies des voies aériennes inférieures             3793
-## Douleurs abdominales, pathologies digestives                      3110
-## Signes généraux et autres pathologies                             2963
-## Céphalées, pathologies neurologiques hors SNP                     2718
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      1886
-## Douleurs pelviennes, pathologies uro-génitales                    1712
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 1697
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 1193
-## Dermato-allergologie et atteintes cutanéo-muqueuses                681
-## Fièvre et infectiologie générale                                   493
-## NA's                                                               131
-##   Total                                                          24237
-##                                                                %(NA+)
-## Douleurs thoraciques, pathologies cardio-vasculaires             15.9
-## Dyspnées, pathologies des voies aériennes inférieures            15.6
-## Douleurs abdominales, pathologies digestives                     12.8
-## Signes généraux et autres pathologies                            12.2
-## Céphalées, pathologies neurologiques hors SNP                    11.2
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      7.8
-## Douleurs pelviennes, pathologies uro-génitales                    7.1
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 7.0
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 4.9
-## Dermato-allergologie et atteintes cutanéo-muqueuses               2.8
-## Fièvre et infectiologie générale                                  2.0
-## NA's                                                              0.5
-##   Total                                                         100.0
-##                                                                %(NA-)
-## Douleurs thoraciques, pathologies cardio-vasculaires             16.0
-## Dyspnées, pathologies des voies aériennes inférieures            15.7
-## Douleurs abdominales, pathologies digestives                     12.9
-## Signes généraux et autres pathologies                            12.3
-## Céphalées, pathologies neurologiques hors SNP                    11.3
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      7.8
-## Douleurs pelviennes, pathologies uro-génitales                    7.1
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 7.0
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 4.9
-## Dermato-allergologie et atteintes cutanéo-muqueuses               2.8
-## Fièvre et infectiologie générale                                  2.0
-## NA's                                                              0.0
-##   Total                                                         100.0
-```
-
-### Pathologie traumatique gériatrique
-
-```r
-f <- groupe.pathologique(d3g, "trau")
-tab1(f$data, cex.names = 0.5, cex = 0.8, sort.group = "decreasing", main = "Traumatologie gériatrique", bar.values = "percent")
-```
-
-![](analyse_regroup_files/figure-html/chap_ger_trau-1.png) 
-
-```
-## f$data : 
-##                                      Frequency   %(NA+)   %(NA-)
-## Traumatisme du membre inférieur           2746     31.9     32.4
-## Traumatisme du membre supérieur           2135     24.8     25.2
-## Traumatisme de la tête et du cou          1990     23.1     23.5
-## Traumatisme thoraco-abdomino-pelvien       844      9.8      9.9
-## Traumatisme autre et sans précision        768      8.9      9.1
-## NA's                                       131      1.5      0.0
-##   Total                                   8614    100.0    100.0
-```
-
-Synthèse
---------
-Passages bruts:
-
-```
-Warning in rbind(s.type.ped, s.type.adl, s.type.ger, s.type): number of
-columns of result is not a multiple of vector length (arg 1)
-```
-
-```
-               Autre recours Médico-chirurgical Psychiatrique
-< 18 ans                1864              38406           698
-18-74 ans               5025              74304          5087
-75 ans et plus           552              24106           400
-TOTAL                   7441             136816          6185
-               Toxicologique Traumatologique NA's
-< 18 ans                 525           32954 1864
-18-74 ans               4135           50470 5025
-75 ans et plus           187            8483  552
-TOTAL                   4847           91907 1170
-```
-
-Taux de passage standardisé pour 1000 RPU:
-
-
-```
-Warning in rbind(t1, t2, t3, t4): number of columns of result is not a
-multiple of vector length (arg 1)
-```
-
-```
-               Autre recours Médico-chirurgical Psychiatrique
-< 18 ans                  25                516           9.4
-18-74 ans                 36                534          36.6
-75 ans et plus            16                715          11.9
-TOTAL                     30                551          24.9
-               Toxicologique Traumatologique NA's
-< 18 ans                 7.0             443 25.0
-18-74 ans               29.7             363 36.1
-75 ans et plus           5.5             252 16.4
-TOTAL                   19.5             370  4.7
-```
-
-![](analyse_regroup_files/figure-html/synthèse-1.png) 
-
-
-AVC
-===
-
-
-```r
-AVC<-d3[substr(d3$DP,1,3)>="I60" & substr(d3$DP,1,3)<"I65" | substr(d3$DP,1,3)=="G46" | substr(d3$DP,1,3)=="G45" ,]
-AVC$etiologie <- NA
-AVC$etiologie[substr(AVC$DP,1,3) %in% c("I60","I61","I62")] <-"HEMO"
-AVC$etiologie[substr(AVC$DP,1,3) %in% c("I63","I64")] <-"ISCH"
-AVC$etiologie[substr(AVC$DP,1,3) %in% c("I64")] <-"NPRE"
-AVC$etiologie[substr(AVC$DP,1,3) %in% c("G45","G46")] <-"AIT"
-AVC$etiologie <- as.factor(AVC$etiologie)
-
-n.avc <- nrow(AVC)
-```
-RECUEIL DES DONNÉES
--------------------
-
-- Nombre d’AVC dans l'année (+ rappeler le pourcentage d’exhaustivité du DP par rapport au nombre de RPU): __2949__
-- Moyenne quotidienne d’AVC: __8.08 AVC/j__
-- %  d’AVC dans l’activité globale: __1.19 %__
-
-PATIENTS
---------
-
-```
-## c.age
-##     [0,5)    [5,10)   [10,15)   [15,20)   [20,25)   [25,30)   [30,35) 
-##        10         2         4        10        19        26        26 
-##   [35,40)   [40,45)   [45,50)   [50,55)   [55,60)   [60,65)   [65,70) 
-##        33        68        97       150       166       235       284 
-##   [70,75)   [75,80)   [80,85)   [85,90)   [90,95)  [95,100) [100,105) 
-##       295       393       496       408       193        28         4 
-## [105,110) [110,115) [115,120) 
-##         1         1         0
-```
-
-![](analyse_regroup_files/figure-html/patients-1.png) 
-
-- Sex ratio: 0.95
-- Age moyen: 71.44 ans
-- Nombre d’AVC par sous classe d’âge (GT1):
-
-ARRIVÉE
---------
-- Nombre d’AVC et % par tranche d’heure GT1 (matinée, début d’après midi, fin d’après midi, soirée, nuit profonde)
-
-```r
-# heures de découpage
-p <- c(0, 8, 12, 16, 20, 24)
-# légende
-np <- c("nuit profonde", "matinée", "début après-midi", "fin après-midi", "soirée")
-# extraction des heures à partir du format datetime (http://stackoverflow.com/questions/19292438/split-date-time)
-a <- as.numeric(format(as.POSIXct(AVC$ENTREE), "%H"))
-
-x <- cut(a, p, np, right = FALSE)
-x2 <- cut(a, p, right = FALSE)
-
-rbind(levels(x2), table(x))
-```
-
-```
-##      nuit profonde matinée  début après-midi fin après-midi soirée   
-## [1,] "[0,8)"       "[8,12)" "[12,16)"        "[16,20)"      "[20,24)"
-## [2,] "272"         "900"    "865"            "619"          "293"
-```
-
-```r
-tab1(x, cex.names = 0.8, main = "Heure d'admission des AVC", bar.values = "percent", ylab = "%")
-```
-
-![](analyse_regroup_files/figure-html/avc_periode-1.png) 
-
-```
-## x : 
-##                  Frequency Percent Cum. percent
-## nuit profonde          272     9.2          9.2
-## matinée                900    30.5         39.7
-## début après-midi       865    29.3         69.1
-## fin après-midi         619    21.0         90.1
-## soirée                 293     9.9        100.0
-##   Total               2949   100.0        100.0
-```
-
-- %  passages en horaire de PDS
-
-
-              PDSS   PDSWE   NPDS
------------  -----  ------  -----
-Nombre AVC     403     656   1890
-% AVC           14      22     64
-
-PDSS = horaires de PDS en semaine, PDSWE = horaires de PDS le WE, NPDS = hors horaire de PDS.
-
-Mode d'arrivée aux urgences
----------------------------
-
-
-```r
-n.avc.moyen <- summary(factor(AVC$TRANSPORT))
-n.avc.moyen
-```
-
-```
-##  AMBU    FO  HELI PERSO  SMUR  VSAB  NA's 
-##  1154     1    19   636    58   527   554
-```
-
-```r
-p.avc.moyen <- round(prop.table(n.avc.moyen)*100, 2)
-p.avc.moyen
-```
-
-```
-##  AMBU    FO  HELI PERSO  SMUR  VSAB  NA's 
-## 39.13  0.03  0.64 21.57  1.97 17.87 18.79
-```
-- %  d’arrivées Moyen perso
-- %  d'arrivées SMUR
-- %  d'arrivées VSAV
-- %  d'arrivées ambulance privée
-NB : commentaire possible pour expliquer que la somme des 4 pourcentages ci dessus ne fait pas 100 %
-
-
-DIAGNOSTIC PRINCIPAL
---------------------
-
-```r
-t.diag <- table(AVC$etiologie)
-p.diag <- prop.table(t.diag)*100
-```
-
-- Nombre d’AVC et %
-- Nombre d’AIT et %
-- Nombre de codes "symptomatiques" (hémiplégie, aphasie, amaurose, etc…) et %
-- Nombre d’autres hémorragies non traumatiques et %
-
-NB : se référer à l’annexe 4 pour les regroupements.
-
-DURÉE
------
-- Durée de passage (HORS UHCD) : moyenne et médiane
-- % de passages de moins de 4h
-
-MODE DE SORTIE
---------------
-- % d’hospitalisation
-- % de mutation
-- % de transfert
-- % de retour à domicile
-
-Résultats par type d'établissement
-==================================
-
-Latrame commune recueuille les éléments suivants:
-
-
-```
-                 Autre recours Médico-chirurgical Psychiatrique
-SU SAMU CHU                 25                516           9.4
-SU SAMU non CHU           1605              28855        2321.0
-SU SMUR non SAMU          4093              69304        2836.0
-SU non SMUR               1417              17941         505.0
-TOTAL                     7441             136816        6185.0
-                 Toxicologique Traumatologique
-SU SAMU CHU                  7             443
-SU SAMU non CHU           1223           13022
-SU SMUR non SAMU          2487           53211
-SU non SMUR                286           20056
-TOTAL                     4847           91907
-```
-
-Une table des types
-
-
-```r
-x <- tapply(d3$TYPE.URGENCES, d3$FINESS, table ) # x est un vecteur de list
-y <- x[-3] # on retire ste anne qui n'a aucun DP
-z <- matrix(unlist(y), nrow = 14, ncol = 5) # on transforme y en matrice. Pour en faire un data frame: df <- df <- data.frame(matrix(unlist(y), nrow=14, byrow=T),stringsAsFactors=FALSE). Source: http://stackoverflow.com/questions/4227223/r-list-to-data-frame
-
-rownames(z) <- names(x[-3]) # ok
-colnames(z) <- names(unlist(x[1])) # ok mais pas terrible
-```
 

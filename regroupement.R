@@ -21,15 +21,15 @@
 
 groupe.pathologique <- function(d, groupe){
     if(groupe == "medchir")
-        medic <- d[d$TYPE.URGENCES == "Médico-chirurgical", "CHAPITRE"]
+        medic <- d[d$TYPE_URGENCES == "Médico-chirurgical", "CHAPITRE"]
     else if(groupe == "trau")
-        medic <- d[d$TYPE.URGENCES == "Traumatologique", "CHAPITRE"]
+        medic <- d[d$TYPE_URGENCES == "Traumatologique", "CHAPITRE"]
     else if(groupe == "psy")
-        medic <- d[d$TYPE.URGENCES == "Psychiatrique", "CHAPITRE"]
+        medic <- d[d$TYPE_URGENCES == "Psychiatrique", "CHAPITRE"]
     else if(groupe == "toxico")
-        medic <- d[d$TYPE.URGENCES == "Toxicologique", "CHAPITRE"]
+        medic <- d[d$TYPE_URGENCES == "Toxicologique", "CHAPITRE"]
     else if(groupe == "autre")
-        medic <- d[d$TYPE.URGENCES == "Autre recours", "CHAPITRE"]
+        medic <- d[d$TYPE_URGENCES == "Autre recours", "CHAPITRE"]
     
     medic <- factor(medic)
     n.medic <- length(medic)
@@ -52,7 +52,7 @@ groupe.pathologique <- function(d, groupe){
 #'          ou groupe d'établissements)
 #' @return
 #' @usage   d3.smur <- d3[d3$FINESS %in% c("Wis","Hag","Sav","Sel","Col"), ] # ES SMUR non siège SAMU
-#'          type.urgence(d3.smur$TYPE.URGENCES)
+#'          type.urgence(d3.smur$TYPE_URGENCES)
 #' 
 summary.type.urgence <- function(vx){
     n <- length(vx) # nb de valeurs
@@ -91,14 +91,14 @@ summary.type.urgence <- function(vx){
 #   summary.medico.chir
 #
 #==========================================================================
-#' @description analyse de la colonne TYPE.URGENCES
-#' @param dx vecteur = dataframe type d3 ou vecteur colonne TYPE.URGENCES
+#' @description analyse de la colonne TYPE_URGENCES
+#' @param dx vecteur = dataframe type d3 ou vecteur colonne TYPE_URGENCES
 #' @usage summary.medico.chir(d3)
-#' @usage  summary.medico.chir(d3$TYPE.URGENCES)
+#' @usage  summary.medico.chir(d3$TYPE_URGENCES)
 
 summary.medico.chir <- function(dx){
     if(class(dx) == "data.frame")
-        medic <- dx[dx$TYPE.URGENCES == "Médico-chirurgical", "CHAPITRE"]
+        medic <- dx[dx$TYPE_URGENCES == "Médico-chirurgical", "CHAPITRE"]
     t <- summary(factor(medic))
     n <- sum(t)
     
@@ -110,14 +110,14 @@ summary.medico.chir <- function(dx){
 #   summary.toxicologie
 #
 #==========================================================================
-#' @description analyse de la colonne TYPE.URGENCES
-#' @param dx vecteur = dataframe type d3 ou vecteur colonne TYPE.URGENCES
+#' @description analyse de la colonne TYPE_URGENCES
+#' @param dx vecteur = dataframe type d3 ou vecteur colonne TYPE_URGENCES
 #' @usage summary.medico.chir(d3)
-#' @usage  summary.medico.chir(d3$TYPE.URGENCES)
+#' @usage  summary.medico.chir(d3$TYPE_URGENCES)
 
 summary.toxicologie <- function(dx){
     if(class(dx) == "data.frame")
-        medic <- dx[dx$TYPE.URGENCES == "Toxicologique", "CHAPITRE"]
+        medic <- dx[dx$TYPE_URGENCES == "Toxicologique", "CHAPITRE"]
     t <- summary(factor(medic))
     n <- sum(t)
     
@@ -134,7 +134,7 @@ summary.toxicologie <- function(dx){
 #' @param dx un dataframe de typr d3
 #' 
 summary.medicochir <- function(dx){
-  vx <- dx[dx$TYPE.URGENCES == "Médico-chirurgical", "CHAPITRE"]
+  vx <- dx[dx$TYPE_URGENCES == "Médico-chirurgical", "CHAPITRE"]
   n <- length(vx) # nb de valeurs
   n.na <- sum(is.na(vx)) # nb de valeurs non renseignées
   p.na <- mean(is.na(vx)) # % de valeurs non renseignées
