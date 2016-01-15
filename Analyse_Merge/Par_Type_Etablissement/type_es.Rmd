@@ -1,0 +1,112 @@
+---
+title: "Regroupement par type d'établissement"
+author: "JcB - RESURAL"
+date: "15/01/2016"
+output: html_document
+---
+
+```{r, echo=FALSE, message=FALSE}
+
+library(epicalc)
+
+path <- "../../" # path <- "" en mode console
+load(paste0(path, "Analyse_regroupements/merge2015.Rda")) # le fichier mergé
+source(paste0(path,"regroupement.R"))
+
+d3 <- merge2015 # pour rendre le programme générique
+anc <- 2015
+
+names(d3)
+```
+
+Résultats par type d'établissement
+==================================
+
+La trame commune recueille les éléments suivants:
+
+```{r es,echo=FALSE, comment=""}
+d3.hus <- d3[d3$FINESS %in% c("HTP", "NHC"), ] # SU SAMU CHU = HUS en 2014, HTP + NHC en 2015
+d3.mul <- d3[d3$FINESS %in% c("Mul", "Hsr", "Emr"), ] # SU SAMU non CHU = Mul en 2014, Mul, Emr, Hsr en 2015
+d3.smur <- d3[d3$FINESS %in% c("Wis","Hag","Sav","Sel","Col"), ] # ES SMUR non siège SAMU
+d3.es <- d3[d3$FINESS %in% c("Ane","Odi","Dts","Geb","Alk","3Fr","Ros","Dia"), ] # ES non SMUR
+
+t1 <- table(d3.hus$TYPE_URGENCES)
+t2 <- table(d3.mul$TYPE_URGENCES)
+t3 <- table(d3.smur$TYPE_URGENCES)
+t4 <- table(d3.es$TYPE_URGENCES)
+t5 <- table(d3$TYPE_URGENCES) #total
+
+tx <- rbind(t1, t2, t3, t4, t5)
+tot.row <- apply(tx, 1, sum, narm = TRUE)
+# renomme les lignes
+row.names(tx) <- c("SU SAMU CHU","SU SAMU non CHU", "SU SMUR non SAMU","SU non SMUR","TOTAL")
+
+# total par ligne
+tot.row <- apply(tx, 1, sum)
+```
+
+### Résultats par établissement en valeur absolue
+```{r, echo=FALSE, echo=FALSE, comment=""}
+cbind(tx, tot.row)
+
+```
+
+### Résultats par établissement en pourcentage
+```{r, echo=FALSE, echo=FALSE, comment=""}
+# en pourcentage: chaque ligne fait 100%. Contribution de chque typr au total de la lignr
+round(prop.table(tx, 1) * 100, 2)
+```
+
+### Résultats par type (en pourcentage)
+```{r, echo=FALSE, comment=""}
+# on ne prend pas en compte la dernière ligne = total
+round(prop.table(tx[1:4,], 2) * 100, 2)
+
+```
+
+
+Résultats par établissement
+==========================
+
+```{r, echo=FALSE, comment=""}
+t <- tapply(d3$TYPE_URGENCES, list(d3$FINESS, d3$TYPE_URGENCES), length)
+tot.row <- apply(t, 1, sum, na.rm = TRUE)
+t <- cbind(t, tot.row)
+tot.col <- apply(t, 2, sum, na.rm = TRUE)
+t <- rbind(t, tot.col)
+```
+### en valeur absolue
+```{r, echo=FALSE, comment=""}
+t
+```
+
+### en pourcentage par établissement
+Calcul de la part de chaque type de pathologie dans l'activuté d'un établissement
+```{r, echo=FALSE, echo=FALSE, comment=""}
+# en pourcentage: part de chaque type pour un établissement
+t2 <- t[1:nrow(t)-1, 1:ncol(t)-1]
+round(prop.table(t2, 1) * 100, 2) # par colonne
+```
+
+### Part de chaque établissement (en %) dans l'activité régionale
+Calcul de la contribution de chaque établissement au total des RPU créés pour chaque type de pathologie. Chaque chiffre représente le % d'activité de l'établissement pour un type donné.
+```{r, echo=FALSE, comment=""}
+# en pourcentage: part de chaque établisseme,t pour un type donné
+x <- round(prop.table(na.omit(t2), 2) * 100, 2)
+x
+```
+
+
+
+Une table des types
+
+```{}
+x <- tapply(d3$TYPE_URGENCES, d3$FINESS, table ) # x est un vecteur de list
+y <- x[-3] # on retire ste anne qui n'a aucun DP
+z <- matrix(unlist(y), nrow = length(y), ncol = 5) # on transforme y en matrice. Pour en faire un data frame: df <- df <- data.frame(matrix(unlist(y), nrow=14, byrow=T),stringsAsFactors=FALSE). Source: http://stackoverflow.com/questions/4227223/r-list-to-data-frame
+
+rownames(z) <- names(x[-3]) # ok
+colnames(z) <- names(unlist(x[1])) # ok mais pas terrible
+
+
+```

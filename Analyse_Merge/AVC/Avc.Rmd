@@ -1,0 +1,173 @@
+---
+title: "Focus sur les AVC"
+author: "JcB - RESURAL"
+date: "15/01/2016"
+output: html_document
+---
+
+```{r, echo=FALSE, message=FALSE}
+
+library(epicalc)
+library(knitr)
+library(Rpu2)
+
+path <- "../../" # path <- "" en mode console
+load(paste0(path, "Analyse_regroupements/merge2015.Rda")) # le fichier mergé
+source(paste0(path,"regroupement.R"))
+
+d3 <- merge2015 # pour rendre le programme générique
+anc <- 2015
+
+names(d3)
+```
+
+- Année d'analyse: `r anc`
+
+AVC
+===
+
+```{r avc, echo=FALSE}
+AVC<-d3[substr(d3$DP,1,3)>="I60" & substr(d3$DP,1,3)<"I65" | substr(d3$DP,1,3)=="G46" | substr(d3$DP,1,3)=="G45" ,]
+AVC$etiologie <- NA
+AVC$etiologie[substr(AVC$DP,1,3) %in% c("I60","I61","I62")] <-"HEMO"
+AVC$etiologie[substr(AVC$DP,1,3) %in% c("I63","I64")] <-"ISCH"
+AVC$etiologie[substr(AVC$DP,1,3) %in% c("I64")] <-"NPRE"
+AVC$etiologie[substr(AVC$DP,1,3) %in% c("G45","G46")] <-"AIT"
+AVC$etiologie <- as.factor(AVC$etiologie)
+
+n.avc <- nrow(AVC)
+```
+RECUEIL DES DONNÉES
+-------------------
+
+- Nombre d’AVC dans l'année (+ rappeler le pourcentage d’exhaustivité du DP par rapport au nombre de RPU): __`r n.avc`__
+- Moyenne quotidienne d’AVC: __`r round(n.avc/365)` AVC/j__
+- %  d’AVC dans l’activité globale: __`r round(n.avc *100 / nrow(d3), 2)` %__
+
+PATIENTS
+--------
+```{r patients, echo=FALSE, comment=""}
+s.sexe <- table(AVC$SEXE)
+sr <- s.sexe["M"]/s.sexe["F"]
+
+mean.age <- mean(AVC$AGE)
+
+c.age <- cut(AVC$AGE,breaks = seq(0,120,5), right = FALSE)
+# table(c.age)
+
+```
+
+- Sex ratio: `r round(sr, 2)`
+- Age moyen: `r round(mean.age, 2)` ans
+- Nombre d’AVC par classe d’âge: 
+```{r, echo=FALSE}
+table(c.age)
+```
+
+```{r,echo=FALSE}
+barplot(table(c.age), las = 2, cex.names = 0.8, col = "cornflowerblue", ylab = "Fréquence", main = paste("Distribution des AVC en", anc), xlab = "Tranches d'âge")
+```
+
+
+  
+  ARRIVÉE
+--------
+  - Nombre d’AVC et % par tranche d’heure GT1 (matinée, début d’après midi, fin d’après midi, soirée, nuit profonde)
+```{r avc_periode, echo=FALSE}
+# heures de découpage
+p <- c(0, 8, 12, 16, 20, 24)
+# légende
+np <- c("nuit profonde", "matinée", "début après-midi", "fin après-midi", "soirée")
+# extraction des heures à partir du format datetime (http://stackoverflow.com/questions/19292438/split-date-time)
+a <- as.numeric(format(as.POSIXct(AVC$ENTREE), "%H"))
+
+x <- cut(a, p, np, right = FALSE)
+x2 <- cut(a, p, right = FALSE)
+
+rbind(levels(x2), table(x))
+
+tab1(x, cex.names = 0.8, main = "Heure d'admission des AVC", bar.values = "percent", ylab = "%")
+
+
+```
+
+- %  passages en horaire de PDS
+
+```{r avc_pds, echo=FALSE, eval=FALSE}
+
+# CALCUL HPDS OBSOLETE REVOIR LE CALCUL (EVAL = FALSE)
+
+# Résultat sauvegardé pour tout 2014 dans horaires_pds.Rda; on peut récupérer avec load("horaires_pds.Rda") sous le nom de h.pds puis d'en faire une colonne supplémentaire: dx$HPDS <- h.pds
+# dx$HPDS <- pdsa(dx$ENTREE)
+
+
+s.avc.pds <- summary(as.factor(AVC$HPDS))
+# s.avc.pds
+p.avc.pds <- round(prop.table(s.avc.pds) * 100, 2)
+# p.avc.pds
+a <- rbind(s.avc.pds, p.avc.pds)
+n <- colnames(a)
+n[3] <- "NPDS"
+colnames(a) <- n
+rownames(a) <- c("Nombre AVC", "% AVC")
+kable(a)
+```
+
+PDSS = horaires de PDS en semaine, PDSWE = horaires de PDS le WE, NPDS = hors horaire de PDS.
+
+Mode d'arrivée aux urgences
+---------------------------
+
+```{r avc_transport, echo=FALSE}
+n.avc.moyen <- summary(factor(AVC$TRANSPORT))
+n.avc.moyen
+p.avc.moyen <- round(prop.table(n.avc.moyen)*100, 2)
+p.avc.moyen
+```
+- %  d’arrivées Moyen perso
+- %  d'arrivées SMUR
+- %  d'arrivées VSAV
+- %  d'arrivées ambulance privée
+NB : commentaire possible pour expliquer que la somme des 4 pourcentages ci dessus ne fait pas 100 %
+
+
+DIAGNOSTIC PRINCIPAL
+--------------------
+  ```{r diag_principal}
+t.diag <- table(AVC$etiologie)
+p.diag <- prop.table(t.diag)*100
+```
+
+- Nombre d’AVC et %
+- Nombre d’AIT et %
+- Nombre de codes "symptomatiques" (hémiplégie, aphasie, amaurose, etc…) et %
+- Nombre d’autres hémorragies non traumatiques et %
+
+NB : se référer à l’annexe 4 pour les regroupements.
+
+DURÉE
+-----
+  - Durée de passage (HORS UHCD) : moyenne et médiane
+- % de passages de moins de 4h
+
+MODE DE SORTIE
+--------------
+  - % d’hospitalisation
+- % de mutation
+- % de transfert
+- % de retour à domicile
+
+Par établissement
+------------------
+```{r, echo=FALSE}
+tapply(AVC$ENTREE, AVC$FINESS, length)
+
+```
+
+Par mode de sortie
+------------------
+```{r, echo=FALSE}
+tapply(AVC$ENTREE, list(AVC$FINESS, AVC$MODE_SORTIE), length)
+
+```
+

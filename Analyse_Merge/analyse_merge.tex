@@ -131,8 +131,17 @@ travail}\label{recuperation-des-fichiers-de-travail}
 
 \begin{verbatim}
 ## Loading required package: foreign
+\end{verbatim}
+
+\begin{verbatim}
 ## Loading required package: survival
+\end{verbatim}
+
+\begin{verbatim}
 ## Loading required package: MASS
+\end{verbatim}
+
+\begin{verbatim}
 ## Loading required package: nnet
 \end{verbatim}
 
@@ -140,7 +149,7 @@ travail}\label{recuperation-des-fichiers-de-travail}
 \begin{Highlighting}[]
 \NormalTok{path <-}\StringTok{ "../"} \CommentTok{# path <- "" en mode console}
 
-\KeywordTok{load}\NormalTok{(}\StringTok{"../Regroupement_ORUMIP/merge2015.Rda"}\NormalTok{) }\CommentTok{# le fichier mergé}
+\KeywordTok{load}\NormalTok{(}\StringTok{"../Analyse_regroupements/merge2015.Rda"}\NormalTok{) }\CommentTok{# le fichier mergé}
 \KeywordTok{source}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(path,}\StringTok{"regroupement.R"}\NormalTok{))}
 
 \NormalTok{d3 <-}\StringTok{ }\NormalTok{merge2015 }\CommentTok{# pour rendre le programme générique}
@@ -168,9 +177,9 @@ travail}\label{recuperation-des-fichiers-de-travail}
 
 \begin{verbatim}
 ##      Autre recours Médico-chirurgical      Psychiatrique 
-##               8145             147819               5677 
+##               9500             177017               6803 
 ##      Toxicologique    Traumatologique               NA's 
-##               4180              99558                296
+##               4900             116334                359
 \end{verbatim}
 
 \begin{Shaded}
@@ -185,46 +194,46 @@ travail}\label{recuperation-des-fichiers-de-travail}
 
 \begin{verbatim}
 ##     Autre recours Médico-chirurgical Psychiatrique Toxicologique
-## 3Fr           514               4684           152            68
-## Alk           163               1134            49            16
+## 3Fr           608               5703           192            83
+## Alk           188               1322            59            18
 ## Ane            NA                 NA            NA            NA
-## Col          2243              25717          1367           915
-## Dia           489               5923           109             3
-## Dts            NA               1618            NA            NA
-## Geb           530               6062           122           111
-## Hag           738              17936           461           468
+## Col          2564              30275          1627          1063
+## Dia           632               7497           125             7
+## Dts            NA               1736            NA            NA
+## Geb           619               7117           142           124
+## Hag           851              21316           551           545
 ## Hus            NA                 NA            NA            NA
 ## Mul          1056              18671          1416           696
-## Odi            97               6833            55             2
+## Odi           116               8299            57             2
 ## Ros            NA                 NA            NA            NA
-## Sav           149               2640           133            76
-## Sel           785              11274           242           355
-## Wis           409               5398           207            94
-## HTP           450              22884           506           493
-## NHC           138              10008           268           564
-## Emr           324               4812           565           286
-## Hsr            60               2225            25            33
+## Sav           173               3468           165            90
+## Sel           909              13609           296           409
+## Wis           475               6350           241           110
+## HTP           524              27497           612           597
+## NHC           170              12061           327           658
+## Emr           509               7715           943           452
+## Hsr           106               4381            50            46
 ## Ccm            NA                 NA            NA            NA
 ##     Traumatologique
-## 3Fr            3525
-## Alk            1315
+## 3Fr            4220
+## Alk            1506
 ## Ane              NA
-## Col           19205
-## Dia            4012
-## Dts            6080
-## Geb            6659
-## Hag           10948
+## Col           22380
+## Dia            4911
+## Dts            6448
+## Geb            7763
+## Hag           12623
 ## Hus              NA
 ## Mul            7819
-## Odi            3048
-## Ros             502
-## Sav            2724
-## Sel           10863
-## Wis            3901
-## HTP           15133
-## NHC             602
-## Emr            3215
-## Hsr               7
+## Odi            3725
+## Ros             574
+## Sav            3495
+## Sel           12828
+## Wis            4488
+## HTP           17495
+## NHC             757
+## Emr            5284
+## Hsr              18
 ## Ccm              NA
 \end{verbatim}
 
@@ -240,9 +249,9 @@ travail}\label{recuperation-des-fichiers-de-travail}
 
 \begin{verbatim}
 ##      Autre recours Médico-chirurgical      Psychiatrique 
-##               8145             147819               5677 
+##               9500             177017               6803 
 ##      Toxicologique    Traumatologique               NA's 
-##               4180              99558                296
+##               4900             116334                359
 \end{verbatim}
 
 \begin{Shaded}
@@ -251,7 +260,7 @@ travail}\label{recuperation-des-fichiers-de-travail}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/type_urgence-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/type_urgence-1.pdf}\\
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -260,7 +269,7 @@ travail}\label{recuperation-des-fichiers-de-travail}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/type_urgence-2.pdf}
+\includegraphics{analyse_merge_files/figure-latex/type_urgence-2.pdf}\\
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -268,22 +277,21 @@ travail}\label{recuperation-des-fichiers-de-travail}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/type_urgence-3.pdf}
+\includegraphics{analyse_merge_files/figure-latex/type_urgence-3.pdf}\\
 
 \begin{verbatim}
 ## d3$TYPE_URGENCES : 
 ##                    Frequency   %(NA+)   %(NA-)
-## Médico-chirurgical    147819     55.6     55.7
-## Traumatologique        99558     37.5     37.5
-## Autre recours           8145      3.1      3.1
-## Psychiatrique           5677      2.1      2.1
-## Toxicologique           4180      1.6      1.6
-## NA's                     296      0.1      0.0
-##   Total               265675    100.0    100.0
+## Médico-chirurgical    177017     56.2     56.3
+## Traumatologique       116334     36.9     37.0
+## Autre recours           9500      3.0      3.0
+## Psychiatrique           6803      2.2      2.2
+## Toxicologique           4900      1.6      1.6
+## NA's                     359      0.1      0.0
+##   Total               314913    100.0    100.0
 \end{verbatim}
 
-296 codes de sont pas reconnus
-(\texttt{s.type{[}"NA\textquotesingle{}s"{]}*100/n.type} \%).
+359 codes de sont pas reconnus (0.11 \%).
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -294,32 +302,39 @@ travail}\label{recuperation-des-fichiers-de-travail}
 
 \begin{verbatim}
 ##                     [,1]
-## I200+                 11
-## N23 0                 10
+## I200+                 12
+## N23 0                 11
 ## W5700                  9
 ## W0689                  6
+## X6591                  6
 ## V4259                  5
+## W1008                  5
 ## W5701                  5
-## X6591                  5
-## W1008                  4
+## W0709                  4
+## W1929                  4
+## W5799                  4
 ## Y1509                  4
 ## M459                   3
 ## T16 0                  3
 ## V1938                  3
 ## V4269                  3
+## W1959                  3
 ## W5709                  3
 ## W5781                  3
-## W5799                  3
+## Y3341                  3
 ## Y3343                  3
+## Z                      3
 ## S011 02                2
 ## S2250+B6               2
 ## V1328                  2
+## V1941                  2
 ## V4859                  2
 ## W0184                  2
+## W0608                  2
 ## W0694                  2
 ## W0704                  2
-## W0709                  2
-## W1959                  2
+## W1048                  2
+## W1998                  2
 ## W4483                  2
 ## W4581                  2
 ## W5434                  2
@@ -327,12 +342,18 @@ travail}\label{recuperation-des-fichiers-de-travail}
 ## W5704                  2
 ## W5743                  2
 ## X2302                  2
+## X4420                  2
 ## X4548                  2
 ## X4594                  2
 ## X6102                  2
 ## X6434                  2
+## X6549                  2
+## X6592                  2
+## Y0422                  2
+## Y0449                  2
 ## Y1559                  2
-## Y3341                  2
+## Z0488                  2
+## Z6030                  2
 ## F034                   1
 ## G510 02                1
 ## GH819) VERTIGES        1
@@ -341,6 +362,8 @@ travail}\label{recuperation-des-fichiers-de-travail}
 ## K409 01                1
 ## MM199) ARTHROSE SP     1
 ## MM255) ARTHRALGIES     1
+## NN419) PROSTATITE      1
+## PW199) CHUTE           1
 ## S202 02                1
 ## S223 01                1
 ## S372(0                 1
@@ -355,13 +378,17 @@ travail}\label{recuperation-des-fichiers-de-travail}
 ## SV899) AVP             1
 ## SY099) AGRESSION       1
 ## U152                   1
+## V0100                  1
 ## V0408                  1
+## V1149                  1
 ## V1293                  1
+## V1358                  1
 ## V1931                  1
 ## V2658                  1
 ## V4008                  1
 ## V4053                  1
 ## V4202                  1
+## V4211                  1
 ## V4654                  1
 ## V5201                  1
 ## V5351                  1
@@ -369,31 +396,12 @@ travail}\label{recuperation-des-fichiers-de-travail}
 ## V9312                  1
 ## W0104                  1
 ## W0123                  1
+## W0218                  1
 ## W0458                  1
 ## W0604                  1
 ## W0609                  1
 ## W0620                  1
-## W1048                  1
-## W1100                  1
-## W1323                  1
-## W1378                  1
-## W1721                  1
-## W1739                  1
-## W1788                  1
-## W1791                  1
-## W1849                  1
-## W1904                  1
-## W1910                  1
-## W1929                  1
-## W1949                  1
-## W1950                  1
-## W1981                  1
-## W1989                  1
-## W1998                  1
-## W1999                  1
-## W4402                  1
-## W4403                  1
-## (Other)              109
+## (Other)              147
 \end{verbatim}
 
 \begin{itemize}
@@ -425,11 +433,13 @@ exemple pour Mulhouse:
 ## M459                   3
 ## MM199) ARTHROSE SP     1
 ## MM255) ARTHRALGIES     1
+## NN419) PROSTATITE      1
+## PW199) CHUTE           1
 ## S2250+B6               2
 ## S372(0                 1
 ## SV899) AVP             1
 ## SY099) AGRESSION       1
-## Z                      1
+## Z                      3
 \end{verbatim}
 
 \section{Par type d'urgence}\label{par-type-durgence}
@@ -453,9 +463,9 @@ médico-chirurgicales}\label{analyse-des-urgences-medico-chirurgicales}
 
 \begin{verbatim}
 ## Médico-chirurgical    Traumatologique      Autre recours 
-##             147819              99558               8145 
+##             177017             116334               9500 
 ##      Psychiatrique      Toxicologique               NA's 
-##               5677               4180                296
+##               6803               4900                359
 \end{verbatim}
 
 \begin{Shaded}
@@ -466,50 +476,50 @@ médico-chirurgicales}\label{analyse-des-urgences-medico-chirurgicales}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/chapitre-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/chapitre-1.pdf}\\
 
 \begin{verbatim}
 ## factor(medic$CHAPITRE) : 
 ##                                                              Frequency
-## Douleurs abdominales, pathologies digestives                     27580
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                20334
-## Douleurs de membre, rhumatologie, orthopédie, SNP                19834
-## Douleurs pelviennes, pathologies uro-génitales                   11930
-## Dyspnées, pathologies des voies aériennes inférieures            11820
-## Signes généraux et autres pathologies                            11363
-## Douleurs thoraciques, pathologies cardio-vasculaires             10858
-## Dermato-allergologie et atteintes cutanéo-muqueuses              10464
-## Céphalées, pathologies neurologiques hors SNP                    10302
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      7632
-## Fièvre et infectiologie générale                                  5702
-## NA's                                                               296
-##   Total                                                         148115
+## Douleurs abdominales, pathologies digestives                     32849
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                24846
+## Douleurs de membre, rhumatologie, orthopédie, SNP                23911
+## Dyspnées, pathologies des voies aériennes inférieures            14621
+## Douleurs pelviennes, pathologies uro-génitales                   14239
+## Signes généraux et autres pathologies                            13314
+## Douleurs thoraciques, pathologies cardio-vasculaires             13179
+## Dermato-allergologie et atteintes cutanéo-muqueuses              12286
+## Céphalées, pathologies neurologiques hors SNP                    12256
+## Malaises, lipothymies, syncopes, étourdissements et vertiges      9027
+## Fièvre et infectiologie générale                                  6489
+## NA's                                                               359
+##   Total                                                         177376
 ##                                                                %(NA+)
-## Douleurs abdominales, pathologies digestives                     18.6
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                13.7
-## Douleurs de membre, rhumatologie, orthopédie, SNP                13.4
-## Douleurs pelviennes, pathologies uro-génitales                    8.1
-## Dyspnées, pathologies des voies aériennes inférieures             8.0
-## Signes généraux et autres pathologies                             7.7
-## Douleurs thoraciques, pathologies cardio-vasculaires              7.3
-## Dermato-allergologie et atteintes cutanéo-muqueuses               7.1
-## Céphalées, pathologies neurologiques hors SNP                     7.0
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      5.2
-## Fièvre et infectiologie générale                                  3.8
+## Douleurs abdominales, pathologies digestives                     18.5
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                14.0
+## Douleurs de membre, rhumatologie, orthopédie, SNP                13.5
+## Dyspnées, pathologies des voies aériennes inférieures             8.2
+## Douleurs pelviennes, pathologies uro-génitales                    8.0
+## Signes généraux et autres pathologies                             7.5
+## Douleurs thoraciques, pathologies cardio-vasculaires              7.4
+## Dermato-allergologie et atteintes cutanéo-muqueuses               6.9
+## Céphalées, pathologies neurologiques hors SNP                     6.9
+## Malaises, lipothymies, syncopes, étourdissements et vertiges      5.1
+## Fièvre et infectiologie générale                                  3.7
 ## NA's                                                              0.2
 ##   Total                                                         100.0
 ##                                                                %(NA-)
-## Douleurs abdominales, pathologies digestives                     18.7
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                13.8
-## Douleurs de membre, rhumatologie, orthopédie, SNP                13.4
-## Douleurs pelviennes, pathologies uro-génitales                    8.1
-## Dyspnées, pathologies des voies aériennes inférieures             8.0
-## Signes généraux et autres pathologies                             7.7
-## Douleurs thoraciques, pathologies cardio-vasculaires              7.3
-## Dermato-allergologie et atteintes cutanéo-muqueuses               7.1
-## Céphalées, pathologies neurologiques hors SNP                     7.0
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      5.2
-## Fièvre et infectiologie générale                                  3.9
+## Douleurs abdominales, pathologies digestives                     18.6
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                14.0
+## Douleurs de membre, rhumatologie, orthopédie, SNP                13.5
+## Dyspnées, pathologies des voies aériennes inférieures             8.3
+## Douleurs pelviennes, pathologies uro-génitales                    8.0
+## Signes généraux et autres pathologies                             7.5
+## Douleurs thoraciques, pathologies cardio-vasculaires              7.4
+## Dermato-allergologie et atteintes cutanéo-muqueuses               6.9
+## Céphalées, pathologies neurologiques hors SNP                     6.9
+## Malaises, lipothymies, syncopes, étourdissements et vertiges      5.1
+## Fièvre et infectiologie générale                                  3.7
 ## NA's                                                              0.0
 ##   Total                                                         100.0
 \end{verbatim}
@@ -517,18 +527,18 @@ médico-chirurgicales}\label{analyse-des-urgences-medico-chirurgicales}
 \subsection{Analyse des urgences
 médico-chirurgicales}\label{analyse-des-urgences-medico-chirurgicales-1}
 
-\includegraphics{analyse_merge_files/figure-latex/urg_traumato-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/urg_traumato-1.pdf}\\
 
 \begin{verbatim}
 ## factor(trauma$CHAPITRE) : 
 ##                                      Frequency   %(NA+)   %(NA-)
-## Traumatisme du membre supérieur          35340     35.4     35.5
-## Traumatisme du membre inférieur          29599     29.6     29.7
-## Traumatisme de la tête et du cou         22271     22.3     22.4
-## Traumatisme autre et sans précision       6254      6.3      6.3
-## Traumatisme thoraco-abdomino-pelvien      6094      6.1      6.1
-## NA's                                       296      0.3      0.0
-##   Total                                  99854    100.0    100.0
+## Traumatisme du membre supérieur          40914     35.1     35.2
+## Traumatisme du membre inférieur          34529     29.6     29.7
+## Traumatisme de la tête et du cou         26407     22.6     22.7
+## Traumatisme autre et sans précision       7295      6.3      6.3
+## Traumatisme thoraco-abdomino-pelvien      7189      6.2      6.2
+## NA's                                       359      0.3      0.0
+##   Total                                 116693    100.0    100.0
 \end{verbatim}
 
 \section{Par age}\label{par-age}
@@ -549,9 +559,9 @@ médico-chirurgicales}\label{analyse-des-urgences-medico-chirurgicales-1}
 \begin{verbatim}
 ## 
 ##      Autre recours Médico-chirurgical      Psychiatrique 
-##               5375              80448               4532 
+##               6298              95992               5423 
 ##      Toxicologique    Traumatologique 
-##               3546              53216
+##               4167              62025
 \end{verbatim}
 
 \begin{Shaded}
@@ -565,9 +575,9 @@ médico-chirurgicales}\label{analyse-des-urgences-medico-chirurgicales-1}
 \begin{verbatim}
 ## 
 ##      Autre recours Médico-chirurgical      Psychiatrique 
-##               3.65              54.68               3.08 
+##               3.62              55.20               3.12 
 ##      Toxicologique    Traumatologique 
-##               2.41              36.17
+##               2.40              35.67
 \end{verbatim}
 
 \begin{Shaded}
@@ -576,7 +586,7 @@ médico-chirurgicales}\label{analyse-des-urgences-medico-chirurgicales-1}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/adultes-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/adultes-1.pdf}\\
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -584,7 +594,7 @@ médico-chirurgicales}\label{analyse-des-urgences-medico-chirurgicales-1}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/adultes-2.pdf}
+\includegraphics{analyse_merge_files/figure-latex/adultes-2.pdf}\\
 
 \subsection{Pédiatrie (age \textless{} 18
 ans)}\label{pediatrie-age-18-ans}
@@ -602,9 +612,9 @@ ans)}\label{pediatrie-age-18-ans}
 \begin{verbatim}
 ## 
 ## Médico-chirurgical    Traumatologique      Autre recours 
-##              45173              37842               2237 
+##              54620              44213               2559 
 ##      Psychiatrique      Toxicologique 
-##                768                471
+##                924                547
 \end{verbatim}
 
 \begin{Shaded}
@@ -613,7 +623,7 @@ ans)}\label{pediatrie-age-18-ans}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/ped-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/ped-1.pdf}\\
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -621,10 +631,8 @@ ans)}\label{pediatrie-age-18-ans}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/ped-2.pdf}
-
-\subsection{Gériatrie (age \textgreater{} 75
-ans)}\label{geriatrie-age-75-ans}
+\includegraphics{analyse_merge_files/figure-latex/ped-2.pdf}\\ Gériatrie
+(age \textgreater{} 75 ans) ------------------------
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -639,9 +647,9 @@ ans)}\label{geriatrie-age-75-ans}
 \begin{verbatim}
 ## 
 ## Médico-chirurgical    Traumatologique      Autre recours 
-##              22198               8500                533 
+##              26405              10096                643 
 ##      Psychiatrique      Toxicologique 
-##                376                163
+##                454                186
 \end{verbatim}
 
 \begin{Shaded}
@@ -650,7 +658,7 @@ ans)}\label{geriatrie-age-75-ans}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/geriatrie-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/geriatrie-1.pdf}\\
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -658,9 +666,8 @@ ans)}\label{geriatrie-age-75-ans}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/geriatrie-2.pdf}
-
-\subsection{Synthèse}\label{synthese}
+\includegraphics{analyse_merge_files/figure-latex/geriatrie-2.pdf}\\
+Synthèse --------
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -672,13 +679,13 @@ ans)}\label{geriatrie-age-75-ans}
 
 \begin{verbatim}
 ##            Autre recours Médico-chirurgical Psychiatrique Toxicologique
-## s.type.adl          5375              80448          4532          3546
-## s.type.ped          2237              45173           768           471
-## s.type.ger           533              22198           376           163
+## s.type.adl          6298              95992          5423          4167
+## s.type.ped          2559              54620           924           547
+## s.type.ger           643              26405           454           186
 ##            Traumatologique
-## s.type.adl           53216
-## s.type.ped           37842
-## s.type.ger            8500
+## s.type.adl           62025
+## s.type.ped           44213
+## s.type.ger           10096
 \end{verbatim}
 
 \begin{Shaded}
@@ -687,7 +694,7 @@ ans)}\label{geriatrie-age-75-ans}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/synthese-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/synthese-1.pdf}\\
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -699,13 +706,13 @@ ans)}\label{geriatrie-age-75-ans}
 
 \begin{verbatim}
 ##            Autre recours Médico-chirurgical Psychiatrique Toxicologique
-## s.type.adl          3.65              54.68          3.08          2.41
-## s.type.ped          2.59              52.23          0.89          0.54
-## s.type.ger          1.68              69.87          1.18          0.51
+## s.type.adl          3.62              55.20          3.12          2.40
+## s.type.ped          2.49              53.10          0.90          0.53
+## s.type.ger          1.70              69.88          1.20          0.49
 ##            Traumatologique
-## s.type.adl           36.17
-## s.type.ped           43.75
-## s.type.ger           26.75
+## s.type.adl           35.67
+## s.type.ped           42.98
+## s.type.ger           26.72
 \end{verbatim}
 
 \begin{Shaded}
@@ -715,7 +722,7 @@ ans)}\label{geriatrie-age-75-ans}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/synthese-2.pdf}
+\includegraphics{analyse_merge_files/figure-latex/synthese-2.pdf}\\
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -724,9 +731,8 @@ ans)}\label{geriatrie-age-75-ans}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/synthese-3.pdf}
-
-\section{Par chapitre}\label{par-chapitre}
+\includegraphics{analyse_merge_files/figure-latex/synthese-3.pdf}\\ Par
+chapitre ============
 
 \subsection{Adultes}\label{adultes}
 
@@ -746,27 +752,27 @@ médico-chirurgicale}\label{pathologie-medico-chirurgicale}
 \begin{verbatim}
 ## 
 ##            Douleurs de membre, rhumatologie, orthopédie, SNP 
-##                                                        18.61 
+##                                                        18.77 
 ##                 Douleurs abdominales, pathologies digestives 
-##                                                        17.36 
+##                                                        17.42 
 ##            ORL, ophtalmo, stomato et carrefour aéro-digestif 
-##                                                         9.66 
+##                                                         9.72 
 ##               Douleurs pelviennes, pathologies uro-génitales 
-##                                                         9.30 
+##                                                         9.34 
 ##         Douleurs thoraciques, pathologies cardio-vasculaires 
-##                                                         8.61 
+##                                                         8.83 
 ##                Céphalées, pathologies neurologiques hors SNP 
-##                                                         7.81 
+##                                                         7.78 
 ##          Dermato-allergologie et atteintes cutanéo-muqueuses 
-##                                                         7.12 
+##                                                         6.99 
 ##                        Signes généraux et autres pathologies 
-##                                                         6.58 
+##                                                         6.37 
 ## Malaises, lipothymies, syncopes, étourdissements et vertiges 
-##                                                         6.27 
+##                                                         6.21 
 ##        Dyspnées, pathologies des voies aériennes inférieures 
-##                                                         6.20 
+##                                                         6.19 
 ##                             Fièvre et infectiologie générale 
-##                                                         2.48
+##                                                         2.38
 \end{verbatim}
 
 \begin{Shaded}
@@ -775,50 +781,50 @@ médico-chirurgicale}\label{pathologie-medico-chirurgicale}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/chap_adultes-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/chap_adultes-1.pdf}\\
 
 \begin{verbatim}
 ## factor(medic.adl$CHAPITRE) : 
 ##                                                              Frequency
-## Douleurs de membre, rhumatologie, orthopédie, SNP                14972
-## Douleurs abdominales, pathologies digestives                     13964
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 7775
-## Douleurs pelviennes, pathologies uro-génitales                    7480
-## Douleurs thoraciques, pathologies cardio-vasculaires              6927
-## Céphalées, pathologies neurologiques hors SNP                     6286
-## Dermato-allergologie et atteintes cutanéo-muqueuses               5727
-## Signes généraux et autres pathologies                             5293
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      5043
-## Dyspnées, pathologies des voies aériennes inférieures             4984
-## Fièvre et infectiologie générale                                  1997
-## NA's                                                               182
-##   Total                                                          80630
+## Douleurs de membre, rhumatologie, orthopédie, SNP                18021
+## Douleurs abdominales, pathologies digestives                     16725
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                 9326
+## Douleurs pelviennes, pathologies uro-génitales                    8965
+## Douleurs thoraciques, pathologies cardio-vasculaires              8474
+## Céphalées, pathologies neurologiques hors SNP                     7466
+## Dermato-allergologie et atteintes cutanéo-muqueuses               6708
+## Signes généraux et autres pathologies                             6119
+## Malaises, lipothymies, syncopes, étourdissements et vertiges      5959
+## Dyspnées, pathologies des voies aériennes inférieures             5945
+## Fièvre et infectiologie générale                                  2284
+## NA's                                                               220
+##   Total                                                          96212
 ##                                                                %(NA+)
-## Douleurs de membre, rhumatologie, orthopédie, SNP                18.6
-## Douleurs abdominales, pathologies digestives                     17.3
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 9.6
-## Douleurs pelviennes, pathologies uro-génitales                    9.3
-## Douleurs thoraciques, pathologies cardio-vasculaires              8.6
-## Céphalées, pathologies neurologiques hors SNP                     7.8
-## Dermato-allergologie et atteintes cutanéo-muqueuses               7.1
-## Signes généraux et autres pathologies                             6.6
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      6.3
-## Dyspnées, pathologies des voies aériennes inférieures             6.2
-## Fièvre et infectiologie générale                                  2.5
-## NA's                                                              0.2
-##   Total                                                         100.0
-##                                                                %(NA-)
-## Douleurs de membre, rhumatologie, orthopédie, SNP                18.6
+## Douleurs de membre, rhumatologie, orthopédie, SNP                18.7
 ## Douleurs abdominales, pathologies digestives                     17.4
 ## ORL, ophtalmo, stomato et carrefour aéro-digestif                 9.7
 ## Douleurs pelviennes, pathologies uro-génitales                    9.3
-## Douleurs thoraciques, pathologies cardio-vasculaires              8.6
+## Douleurs thoraciques, pathologies cardio-vasculaires              8.8
 ## Céphalées, pathologies neurologiques hors SNP                     7.8
-## Dermato-allergologie et atteintes cutanéo-muqueuses               7.1
-## Signes généraux et autres pathologies                             6.6
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      6.3
+## Dermato-allergologie et atteintes cutanéo-muqueuses               7.0
+## Signes généraux et autres pathologies                             6.4
+## Malaises, lipothymies, syncopes, étourdissements et vertiges      6.2
 ## Dyspnées, pathologies des voies aériennes inférieures             6.2
-## Fièvre et infectiologie générale                                  2.5
+## Fièvre et infectiologie générale                                  2.4
+## NA's                                                              0.2
+##   Total                                                         100.0
+##                                                                %(NA-)
+## Douleurs de membre, rhumatologie, orthopédie, SNP                18.8
+## Douleurs abdominales, pathologies digestives                     17.4
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                 9.7
+## Douleurs pelviennes, pathologies uro-génitales                    9.3
+## Douleurs thoraciques, pathologies cardio-vasculaires              8.8
+## Céphalées, pathologies neurologiques hors SNP                     7.8
+## Dermato-allergologie et atteintes cutanéo-muqueuses               7.0
+## Signes généraux et autres pathologies                             6.4
+## Malaises, lipothymies, syncopes, étourdissements et vertiges      6.2
+## Dyspnées, pathologies des voies aériennes inférieures             6.2
+## Fièvre et infectiologie générale                                  2.4
 ## NA's                                                              0.0
 ##   Total                                                         100.0
 \end{verbatim}
@@ -838,11 +844,11 @@ médico-chirurgicale}\label{pathologie-medico-chirurgicale}
 \begin{verbatim}
 ## 
 ##      Traumatisme du membre supérieur      Traumatisme du membre inférieur 
-##                                37.75                                31.30 
+##                                37.38                                31.11 
 ##     Traumatisme de la tête et du cou Traumatisme thoraco-abdomino-pelvien 
-##                                16.75                                 7.11 
+##                                17.18                                 7.20 
 ##  Traumatisme autre et sans précision 
-##                                 7.10
+##                                 7.14
 \end{verbatim}
 
 \begin{Shaded}
@@ -851,18 +857,18 @@ médico-chirurgicale}\label{pathologie-medico-chirurgicale}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/trauma_adulte-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/trauma_adulte-1.pdf}\\
 
 \begin{verbatim}
 ## factor(trauma.adl$CHAPITRE) : 
 ##                                      Frequency   %(NA+)   %(NA-)
-## Traumatisme du membre supérieur          20089     37.6     37.7
-## Traumatisme du membre inférieur          16656     31.2     31.3
-## Traumatisme de la tête et du cou          8912     16.7     16.7
-## Traumatisme thoraco-abdomino-pelvien      3781      7.1      7.1
-## Traumatisme autre et sans précision       3778      7.1      7.1
-## NA's                                       182      0.3      0.0
-##   Total                                  53398    100.0    100.0
+## Traumatisme du membre supérieur          23188     37.3     37.4
+## Traumatisme du membre inférieur          19293     31.0     31.1
+## Traumatisme de la tête et du cou         10653     17.1     17.2
+## Traumatisme thoraco-abdomino-pelvien      4464      7.2      7.2
+## Traumatisme autre et sans précision       4427      7.1      7.1
+## NA's                                       220      0.4      0.0
+##   Total                                  62245    100.0    100.0
 \end{verbatim}
 
 \subsection{Enfants}\label{enfants}
@@ -877,47 +883,47 @@ pédiatrique}\label{pathologie-medico-chirurgicale-pediatrique}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/chap_ped_med-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/chap_ped_med-1.pdf}\\
 
 \begin{verbatim}
 ## f$data : 
 ##                                                              Frequency
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                11343
-## Douleurs abdominales, pathologies digestives                     10908
-## Dermato-allergologie et atteintes cutanéo-muqueuses               4063
-## Dyspnées, pathologies des voies aériennes inférieures             3422
-## Fièvre et infectiologie générale                                  3185
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 3172
-## Signes généraux et autres pathologies                             3172
-## Douleurs pelviennes, pathologies uro-génitales                    2816
-## Céphalées, pathologies neurologiques hors SNP                     1670
-## Malaises, lipothymies, syncopes, étourdissements et vertiges       962
-## Douleurs thoraciques, pathologies cardio-vasculaires               460
-## NA's                                                                84
-##   Total                                                          45257
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                14093
+## Douleurs abdominales, pathologies digestives                     12906
+## Dermato-allergologie et atteintes cutanéo-muqueuses               4770
+## Dyspnées, pathologies des voies aériennes inférieures             4644
+## Douleurs de membre, rhumatologie, orthopédie, SNP                 3857
+## Signes généraux et autres pathologies                             3788
+## Fièvre et infectiologie générale                                  3601
+## Douleurs pelviennes, pathologies uro-génitales                    3295
+## Céphalées, pathologies neurologiques hors SNP                     1994
+## Malaises, lipothymies, syncopes, étourdissements et vertiges      1132
+## Douleurs thoraciques, pathologies cardio-vasculaires               540
+## NA's                                                               100
+##   Total                                                          54720
 ##                                                                %(NA+)
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                25.1
-## Douleurs abdominales, pathologies digestives                     24.1
-## Dermato-allergologie et atteintes cutanéo-muqueuses               9.0
-## Dyspnées, pathologies des voies aériennes inférieures             7.6
-## Fièvre et infectiologie générale                                  7.0
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                25.8
+## Douleurs abdominales, pathologies digestives                     23.6
+## Dermato-allergologie et atteintes cutanéo-muqueuses               8.7
+## Dyspnées, pathologies des voies aériennes inférieures             8.5
 ## Douleurs de membre, rhumatologie, orthopédie, SNP                 7.0
-## Signes généraux et autres pathologies                             7.0
-## Douleurs pelviennes, pathologies uro-génitales                    6.2
-## Céphalées, pathologies neurologiques hors SNP                     3.7
+## Signes généraux et autres pathologies                             6.9
+## Fièvre et infectiologie générale                                  6.6
+## Douleurs pelviennes, pathologies uro-génitales                    6.0
+## Céphalées, pathologies neurologiques hors SNP                     3.6
 ## Malaises, lipothymies, syncopes, étourdissements et vertiges      2.1
 ## Douleurs thoraciques, pathologies cardio-vasculaires              1.0
 ## NA's                                                              0.2
 ##   Total                                                         100.0
 ##                                                                %(NA-)
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                25.1
-## Douleurs abdominales, pathologies digestives                     24.1
-## Dermato-allergologie et atteintes cutanéo-muqueuses               9.0
-## Dyspnées, pathologies des voies aériennes inférieures             7.6
-## Fièvre et infectiologie générale                                  7.1
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 7.0
-## Signes généraux et autres pathologies                             7.0
-## Douleurs pelviennes, pathologies uro-génitales                    6.2
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                25.8
+## Douleurs abdominales, pathologies digestives                     23.6
+## Dermato-allergologie et atteintes cutanéo-muqueuses               8.7
+## Dyspnées, pathologies des voies aériennes inférieures             8.5
+## Douleurs de membre, rhumatologie, orthopédie, SNP                 7.1
+## Signes généraux et autres pathologies                             6.9
+## Fièvre et infectiologie générale                                  6.6
+## Douleurs pelviennes, pathologies uro-génitales                    6.0
 ## Céphalées, pathologies neurologiques hors SNP                     3.7
 ## Malaises, lipothymies, syncopes, étourdissements et vertiges      2.1
 ## Douleurs thoraciques, pathologies cardio-vasculaires              1.0
@@ -935,18 +941,18 @@ pédiatrique}\label{pathologie-traumatique-pediatrique}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/chap_ped_trau-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/chap_ped_trau-1.pdf}\\
 
 \begin{verbatim}
 ## f$data : 
 ##                                      Frequency   %(NA+)   %(NA-)
-## Traumatisme du membre supérieur          13072     34.5     34.5
-## Traumatisme de la tête et du cou         11398     30.1     30.1
-## Traumatisme du membre inférieur          10316     27.2     27.3
-## Traumatisme autre et sans précision       1644      4.3      4.3
-## Traumatisme thoraco-abdomino-pelvien      1412      3.7      3.7
-## NA's                                        84      0.2      0.0
-##   Total                                  37926    100.0    100.0
+## Traumatisme du membre supérieur          15182     34.3     34.3
+## Traumatisme de la tête et du cou         13401     30.2     30.3
+## Traumatisme du membre inférieur          12126     27.4     27.4
+## Traumatisme autre et sans précision       1864      4.2      4.2
+## Traumatisme thoraco-abdomino-pelvien      1640      3.7      3.7
+## NA's                                       100      0.2      0.0
+##   Total                                  44313    100.0    100.0
 \end{verbatim}
 
 \subsection{Gériatrie}\label{geriatrie}
@@ -961,49 +967,49 @@ gériatrique}\label{pathologie-medico-chirurgicale-geriatrique}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/chap_ger_med-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/chap_ger_med-1.pdf}\\
 
 \begin{verbatim}
 ## f$data : 
 ##                                                              Frequency
-## Douleurs thoraciques, pathologies cardio-vasculaires              3471
-## Dyspnées, pathologies des voies aériennes inférieures             3414
-## Signes généraux et autres pathologies                             2898
-## Douleurs abdominales, pathologies digestives                      2708
-## Céphalées, pathologies neurologiques hors SNP                     2346
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 1690
-## Douleurs pelviennes, pathologies uro-génitales                    1634
-## Malaises, lipothymies, syncopes, étourdissements et vertiges      1627
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 1216
-## Dermato-allergologie et atteintes cutanéo-muqueuses                674
-## Fièvre et infectiologie générale                                   520
-## NA's                                                                33
-##   Total                                                          22231
+## Douleurs thoraciques, pathologies cardio-vasculaires              4165
+## Dyspnées, pathologies des voies aériennes inférieures             4032
+## Signes généraux et autres pathologies                             3407
+## Douleurs abdominales, pathologies digestives                      3218
+## Céphalées, pathologies neurologiques hors SNP                     2796
+## Douleurs de membre, rhumatologie, orthopédie, SNP                 2033
+## Douleurs pelviennes, pathologies uro-génitales                    1979
+## Malaises, lipothymies, syncopes, étourdissements et vertiges      1936
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                 1427
+## Dermato-allergologie et atteintes cutanéo-muqueuses                808
+## Fièvre et infectiologie générale                                   604
+## NA's                                                                45
+##   Total                                                          26450
 ##                                                                %(NA+)
-## Douleurs thoraciques, pathologies cardio-vasculaires             15.6
-## Dyspnées, pathologies des voies aériennes inférieures            15.4
-## Signes généraux et autres pathologies                            13.0
+## Douleurs thoraciques, pathologies cardio-vasculaires             15.7
+## Dyspnées, pathologies des voies aériennes inférieures            15.2
+## Signes généraux et autres pathologies                            12.9
 ## Douleurs abdominales, pathologies digestives                     12.2
 ## Céphalées, pathologies neurologiques hors SNP                    10.6
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 7.6
-## Douleurs pelviennes, pathologies uro-génitales                    7.4
+## Douleurs de membre, rhumatologie, orthopédie, SNP                 7.7
+## Douleurs pelviennes, pathologies uro-génitales                    7.5
 ## Malaises, lipothymies, syncopes, étourdissements et vertiges      7.3
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 5.5
-## Dermato-allergologie et atteintes cutanéo-muqueuses               3.0
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                 5.4
+## Dermato-allergologie et atteintes cutanéo-muqueuses               3.1
 ## Fièvre et infectiologie générale                                  2.3
-## NA's                                                              0.1
+## NA's                                                              0.2
 ##   Total                                                         100.0
 ##                                                                %(NA-)
-## Douleurs thoraciques, pathologies cardio-vasculaires             15.6
-## Dyspnées, pathologies des voies aériennes inférieures            15.4
-## Signes généraux et autres pathologies                            13.1
+## Douleurs thoraciques, pathologies cardio-vasculaires             15.8
+## Dyspnées, pathologies des voies aériennes inférieures            15.3
+## Signes généraux et autres pathologies                            12.9
 ## Douleurs abdominales, pathologies digestives                     12.2
 ## Céphalées, pathologies neurologiques hors SNP                    10.6
-## Douleurs de membre, rhumatologie, orthopédie, SNP                 7.6
-## Douleurs pelviennes, pathologies uro-génitales                    7.4
+## Douleurs de membre, rhumatologie, orthopédie, SNP                 7.7
+## Douleurs pelviennes, pathologies uro-génitales                    7.5
 ## Malaises, lipothymies, syncopes, étourdissements et vertiges      7.3
-## ORL, ophtalmo, stomato et carrefour aéro-digestif                 5.5
-## Dermato-allergologie et atteintes cutanéo-muqueuses               3.0
+## ORL, ophtalmo, stomato et carrefour aéro-digestif                 5.4
+## Dermato-allergologie et atteintes cutanéo-muqueuses               3.1
 ## Fièvre et infectiologie générale                                  2.3
 ## NA's                                                              0.0
 ##   Total                                                         100.0
@@ -1019,21 +1025,21 @@ gériatrique}\label{pathologie-traumatique-geriatrique}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/chap_ger_trau-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/chap_ger_trau-1.pdf}\\
 
 \begin{verbatim}
 ## f$data : 
 ##                                      Frequency   %(NA+)   %(NA-)
-## Traumatisme du membre inférieur           2627     30.8     30.9
-## Traumatisme du membre supérieur           2179     25.5     25.6
-## Traumatisme de la tête et du cou          1961     23.0     23.1
-## Traumatisme thoraco-abdomino-pelvien       901     10.6     10.6
-## Traumatisme autre et sans précision        832      9.8      9.8
-## NA's                                        33      0.4      0.0
-##   Total                                   8533    100.0    100.0
+## Traumatisme du membre inférieur           3110     30.7     30.8
+## Traumatisme du membre supérieur           2544     25.1     25.2
+## Traumatisme de la tête et du cou          2353     23.2     23.3
+## Traumatisme thoraco-abdomino-pelvien      1085     10.7     10.7
+## Traumatisme autre et sans précision       1004      9.9      9.9
+## NA's                                        45      0.4      0.0
+##   Total                                  10141    100.0    100.0
 \end{verbatim}
 
-\subsection{Synthèse}\label{synthese-1}
+\subsection{Synthèse}\label{synthese}
 
 Passages bruts:
 
@@ -1044,15 +1050,15 @@ columns of result is not a multiple of vector length (arg 1)
 
 \begin{verbatim}
                Autre recours Médico-chirurgical Psychiatrique
-< 18 ans                2237              45173           768
-18-74 ans               5375              80448          4532
-75 ans et plus           533              22198           376
-TOTAL                   8145             147819          5677
+< 18 ans                2559              54620           924
+18-74 ans               6298              95992          5423
+75 ans et plus           643              26405           454
+TOTAL                   9500             177017          6803
                Toxicologique Traumatologique NA's
-< 18 ans                 471           37842 2237
-18-74 ans               3546           53216 5375
-75 ans et plus           163            8500  533
-TOTAL                   4180           99558  296
+< 18 ans                 547           44213 2559
+18-74 ans               4167           62025 6298
+75 ans et plus           186           10096  643
+TOTAL                   4900          116334  359
 \end{verbatim}
 
 Taux de passage standardisé pour 1000 RPU:
@@ -1064,18 +1070,18 @@ multiple of vector length (arg 1)
 
 \begin{verbatim}
                Autre recours Médico-chirurgical Psychiatrique
-< 18 ans               25.86             522.29          8.88
-18-74 ans              36.54             546.83         30.81
-75 ans et plus         16.78             698.71         11.84
-TOTAL                  30.66             556.39         21.37
+< 18 ans               24.88             531.00          8.98
+18-74 ans              36.22             551.98         31.18
+75 ans et plus         17.02             698.84         12.02
+TOTAL                  30.17             562.11         21.60
                Toxicologique Traumatologique  NA's
-< 18 ans                5.45          437.53 25.86
-18-74 ans              24.10          361.73 36.54
-75 ans et plus          5.13          267.55 16.78
-TOTAL                  15.73          374.74  1.11
+< 18 ans                5.32          429.82 24.88
+18-74 ans              23.96          356.66 36.22
+75 ans et plus          4.92          267.20 17.02
+TOTAL                  15.56          369.42  1.14
 \end{verbatim}
 
-\includegraphics{analyse_merge_files/figure-latex/synthese2-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/synthese2-1.pdf}\\
 
 \section{AVC}\label{avc}
 
@@ -1099,11 +1105,11 @@ TOTAL                  15.73          374.74  1.11
 \itemsep1pt\parskip0pt\parsep0pt
 \item
   Nombre d'AVC dans l'année (+ rappeler le pourcentage d'exhaustivité du
-  DP par rapport au nombre de RPU): \textbf{2476}
+  DP par rapport au nombre de RPU): \textbf{2945}
 \item
-  Moyenne quotidienne d'AVC: \textbf{6.7835616 AVC/j}
+  Moyenne quotidienne d'AVC: \textbf{8.0684932 AVC/j}
 \item
-  \% d'AVC dans l'activité globale: \textbf{0.9319657 \%}
+  \% d'AVC dans l'activité globale: \textbf{0.9351789 \%}
 \end{itemize}
 
 \subsection{PATIENTS}\label{patients}
@@ -1111,26 +1117,18 @@ TOTAL                  15.73          374.74  1.11
 \begin{verbatim}
 ## c.age
 ##     [0,5)    [5,10)   [10,15)   [15,20)   [20,25)   [25,30)   [30,35) 
-##         4         5         1         7        20        20        26 
+##         5         6         1         8        24        20        30 
 ##   [35,40)   [40,45)   [45,50)   [50,55)   [55,60)   [60,65)   [65,70) 
-##        35        50        88       119       148       195       246 
+##        40        59       108       137       170       238       284 
 ##   [70,75)   [75,80)   [80,85)   [85,90)   [90,95)  [95,100) [100,105) 
-##       222       350       406       338       165        26         5 
+##       269       420       479       406       200        34         6 
 ## [105,110) [110,115) [115,120) 
-##         0         0         0
+##         1         0         0
 \end{verbatim}
 
-\includegraphics{analyse_merge_files/figure-latex/patients-1.pdf}
-
-\begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  Sex ratio: 1.027846
-\item
-  Age moyen: 71.34 ans
-\item
-  Nombre d'AVC par sous classe d'âge (GT1):
-\end{itemize}
+\includegraphics{analyse_merge_files/figure-latex/patients-1.pdf}\\ -
+Sex ratio: 1.0020394 - Age moyen: 71.53 ans - Nombre d'AVC par sous
+classe d'âge (GT1):
 
 \subsection{ARRIVÉE}\label{arrivee}
 
@@ -1160,7 +1158,7 @@ TOTAL                  15.73          374.74  1.11
 \begin{verbatim}
 ##      nuit profonde matinée  début après-midi fin après-midi soirée   
 ## [1,] "[0,8)"       "[8,12)" "[12,16)"        "[16,20)"      "[20,24)"
-## [2,] "226"         "783"    "778"            "495"          "194"
+## [2,] "268"         "930"    "929"            "599"          "219"
 \end{verbatim}
 
 \begin{Shaded}
@@ -1169,17 +1167,17 @@ TOTAL                  15.73          374.74  1.11
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{analyse_merge_files/figure-latex/avc_periode-1.pdf}
+\includegraphics{analyse_merge_files/figure-latex/avc_periode-1.pdf}\\
 
 \begin{verbatim}
 ## x : 
 ##                  Frequency Percent Cum. percent
-## nuit profonde          226     9.1          9.1
-## matinée                783    31.6         40.8
-## début après-midi       778    31.4         72.2
-## fin après-midi         495    20.0         92.2
-## soirée                 194     7.8        100.0
-##   Total               2476   100.0        100.0
+## nuit profonde          268     9.1          9.1
+## matinée                930    31.6         40.7
+## début après-midi       929    31.5         72.2
+## fin après-midi         599    20.3         92.6
+## soirée                 219     7.4        100.0
+##   Total               2945   100.0        100.0
 \end{verbatim}
 
 \begin{itemize}
@@ -1203,7 +1201,7 @@ urgences}\label{mode-darrivee-aux-urgences}
 
 \begin{verbatim}
 ##  AMBU    FO  HELI PERSO  SMUR  VSAB  NA's 
-##  1152     1    14   543    59   418   289
+##  1384     1    18   645    70   484   343
 \end{verbatim}
 
 \begin{Shaded}
@@ -1215,7 +1213,7 @@ urgences}\label{mode-darrivee-aux-urgences}
 
 \begin{verbatim}
 ##  AMBU    FO  HELI PERSO  SMUR  VSAB  NA's 
-## 46.53  0.04  0.57 21.93  2.38 16.88 11.67
+## 46.99  0.03  0.61 21.90  2.38 16.43 11.65
 \end{verbatim}
 
 \begin{itemize}
@@ -1281,17 +1279,17 @@ La trame commune recueuille les éléments suivants:
 
 \begin{verbatim}
                  Autre recours Médico-chirurgical Psychiatrique
-SU SAMU CHU              25.86             522.29          8.88
-SU SAMU non CHU        1056.00           18671.00       1416.00
-SU SMUR non SAMU       4324.00           62965.00       2410.00
-SU non SMUR            1793.00           26254.00        487.00
-TOTAL                  8145.00          147819.00       5677.00
+SU SAMU CHU              24.88                531          8.98
+SU SAMU non CHU        1056.00              18671       1416.00
+SU SMUR non SAMU       4972.00              75018       2880.00
+SU non SMUR            2163.00              31674        575.00
+TOTAL                  9500.00             177017       6803.00
                  Toxicologique Traumatologique
-SU SAMU CHU               5.45          437.53
+SU SAMU CHU               5.32          429.82
 SU SAMU non CHU         696.00         7819.00
-SU SMUR non SAMU       1908.00        47641.00
-SU non SMUR             200.00        25141.00
-TOTAL                  4180.00        99558.00
+SU SMUR non SAMU       2217.00        55814.00
+SU non SMUR             234.00        29147.00
+TOTAL                  4900.00       116334.00
 \end{verbatim}
 
 Une table des types
@@ -1329,9 +1327,9 @@ Qui sont les patients hospitalisés en UHTCD ?
 
 \begin{verbatim}
      Autre recours Médico-chirurgical      Psychiatrique 
-               193              10827                297 
+               231              12784                360 
      Toxicologique    Traumatologique               NA's 
-              1344               2924             215041 
+              1575               3297             254742 
 \end{verbatim}
 
 \begin{Shaded}
@@ -1342,63 +1340,63 @@ Qui sont les patients hospitalisés en UHTCD ?
 
 \begin{verbatim}
                                      autre et sans précision 
-                                                           8 
+                                                          13 
                Céphalées, pathologies neurologiques hors SNP 
-                                                        1637 
+                                                        1936 
            Demande de certificats, de dépistage, de conseils 
-                                                          12 
+                                                          17 
          Dermato-allergologie et atteintes cutanéo-muqueuses 
-                                                         422 
+                                                         471 
                Difficultés psychosociales, socio-économiques 
-                                                          40 
+                                                          49 
                 Douleurs abdominales, pathologies digestives 
-                                                        1669 
+                                                        1986 
            Douleurs de membre, rhumatologie, orthopédie, SNP 
-                                                         499 
+                                                         604 
               Douleurs pelviennes, pathologies uro-génitales 
-                                                         817 
+                                                         987 
         Douleurs thoraciques, pathologies cardio-vasculaires 
-                                                        1306 
+                                                        1558 
        Dyspnées, pathologies des voies aériennes inférieures 
-                                                        1718 
+                                                        2041 
                             Fièvre et infectiologie générale 
-                                                         403 
+                                                         453 
             Iatrogénie et complication post chirurgicale SAI 
-                                                          92 
+                                                         108 
                                      Intoxication alcoolique 
-                                                         584 
+                                                         682 
                          Intoxication au monoxyde de carbone 
-                                                          11 
+                                                          14 
                                  Intoxication médicamenteuse 
-                                                         656 
+                                                         772 
                         Intoxication par d'autres substances 
-                                                          93 
+                                                         107 
 Malaises, lipothymies, syncopes, étourdissements et vertiges 
-                                                         721 
+                                                         856 
            ORL, ophtalmo, stomato et carrefour aéro-digestif 
-                                                         163 
+                                                         198 
      Recours lié à l'organisation de la continuité des soins 
-                                                          34 
+                                                          37 
                      Réorientations, fugues,  refus de soins 
                                                            2 
                        Signes généraux et autres pathologies 
-                                                        1472 
+                                                        1694 
                Soins de contrôle, surveillances et entretien 
                                                            5 
                          Traumatisme autre et sans précision 
-                                                         416 
+                                                         487 
                             Traumatisme de la tête et du cou 
-                                                         748 
+                                                         873 
                              Traumatisme du membre inférieur 
-                                                         140 
+                                                         166 
                              Traumatisme du membre supérieur 
-                                                        1326 
+                                                        1445 
                         Traumatisme thoraco-abdomino-pelvien 
-                                                         294 
+                                                         326 
            Troubles du psychisme, pathologies psychiatriques 
-                                                         297 
+                                                         360 
                                                         NA's 
-                                                      215041 
+                                                      254742 
 \end{verbatim}
 
 \begin{Shaded}
@@ -1413,25 +1411,25 @@ Malaises, lipothymies, syncopes, étourdissements et vertiges
 
 \begin{verbatim}
        Dyspnées, pathologies des voies aériennes inférieures 
-                                                       11.02 
+                                                       11.19 
                 Douleurs abdominales, pathologies digestives 
-                                                       10.71 
+                                                       10.88 
                Céphalées, pathologies neurologiques hors SNP 
-                                                       10.50 
+                                                       10.61 
                        Signes généraux et autres pathologies 
-                                                        9.44 
-                             Traumatisme du membre supérieur 
-                                                        8.51 
+                                                        9.28 
         Douleurs thoraciques, pathologies cardio-vasculaires 
-                                                        8.38 
+                                                        8.54 
+                             Traumatisme du membre supérieur 
+                                                        7.92 
               Douleurs pelviennes, pathologies uro-génitales 
-                                                        5.24 
+                                                        5.41 
                             Traumatisme de la tête et du cou 
-                                                        4.80 
+                                                        4.78 
 Malaises, lipothymies, syncopes, étourdissements et vertiges 
-                                                        4.63 
+                                                        4.69 
                                  Intoxication médicamenteuse 
-                                                        4.21 
+                                                        4.23 
 \end{verbatim}
 
 \end{document}

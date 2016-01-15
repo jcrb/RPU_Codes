@@ -74,11 +74,11 @@ options(scipen = 6, digits = 2)
 
 ```
 
-Fichier des codes de regroupement ORUMIP
+Fichier des codes de regroupement ORUMIP (chapitre obsolète)
 ========================================
 
 Analyse du fichier source de l'ORUMIP.
-```{r}
+```{}
 path <- "../Regroupement_ORUMIP/Old Regroupement/" # en mode console path <- "Regroupement_ORUMIP"
 # file <- "Regroupements ORUMiP Thésaurus SFMU.csv"
 file2 <- "REGROUPEMENT-CIM10-FEDORU-V2.csv"
@@ -91,7 +91,7 @@ names(d)
 ```
 Retrouver tous les codes CIM10 correspondants à une gastro-entérite:
 
-```{r}
+```{}
 ge <- d[which(d$SOUS.CHAPITRE == "Diarrhée et gastro-entérite"),]
 
 ```
@@ -102,8 +102,15 @@ Création  d'un nouveau fichier août 2015
 
 L'objectif est de créer un fichier résultant du merging des RPU 2015 et des codes de regroupement ORUMIP.
 
-Récupération des codes de regroupement
---------------------------------------
+Récupération des codes de regroupement ORUMIP
+---------------------------------------------
+
+NB: Ce paragraphe n'est à exécuter que lors d'une mise à jour du Thésaurus.
+
+Le thésaurus de l'ORUMIP est fourni sous la forme d'un classeur Excel. Il faut d'abord le convertir en fichier _.csv_. Puis il faut nettoyer les données:
+
+- renommer les colonnes qui comprtent des blancs, des accents et un intitulé trop long
+
 Les codes de regroupement sont fournis sous forme d'un classeur Excel.
 
 - création d'un nouveau dossier: Regroupement_ORUMIP/Regroupement_ORUMIP/
@@ -133,11 +140,14 @@ write.csv2(orumip, file = "orumip.Rda")
 
 Récupération des RPU 2015
 -------------------------
+
+NB: ce paragraphe est à exécuter chaque fois que le fichier des RPU est mis à jour.
+
 Le ficher des RPU récupéré et nettoyé (on ne conserve que les RPU dont le DP est renseigné) est sauvegardé sous le nom de __dpr2.Rda__.
 
 Lecture du fichier des RPU 2015
 ```{}
-load("../RPU_2014/rpu2015d0112_provisoire.Rda") # d15
+load("../RPU_2014/rpu2015d0112.Rda") # d15
 # load("~/Documents/RESURAL/Trame_Commune/horaires_pds.Rda") #h.pds
 
 # On ne garde que les RPU avec un DP
@@ -164,7 +174,7 @@ Sauvegarde du fichier dpr2
 ```{}
 save(dpr2, file = "Regroupement_ORUMIP/dpr2.Rda")
 
-save(dpr2, file = "dpr2.Rda")
+# save(dpr2, file = "dpr2.Rda")
 ```
 
 Merging des 2 fichiers
@@ -173,13 +183,14 @@ Le fichier résultant est sauvegardé sous le nom de __merge2015.Rda__.
 
 on réalise un merging des deux fichiers sur la base du code CIM 10
 ```{}
+load("Regroupement_ORUMIP/orumip.Rda") # orumip
 merge2015 <- merge(dpr2, orumip, by.x = "DP", by.y = "CIM10", all.x = TRUE)
 
-# sauvegarde obsolète
-save(merge2015, file = "Regroupement_ORUMIP/merge2015.Rda") # merge2015
-
 # sauvegarde
-save(merge2015, file = "merge2015.Rda") # merge2015
+save(merge2015, file = "Analyse_regroupements/merge2015.Rda") # merge2015
+
+# sauvegarde obsolète
+#save(merge2015, file = "merge2015.Rda") # merge2015
 ```
 
 Analyse rapide
@@ -187,7 +198,7 @@ Analyse rapide
 On utilise le fichier __merge2015.Rda__ créé à l'étape précédente, résultant du croisement des RPU 2015 (au 5 novembre 2015) et des code de regroupement ORUMIP. Les codes CIM10 sont dans la colonne DP.
 
 ```{r}
-load("../Regroupement_ORUMIP/merge2015.Rda")
+load("../Analyse_regroupements/merge2015.Rda")
 head(merge2015)
 
 table(merge2015$TYPE_URGENCE)
@@ -204,9 +215,9 @@ round(t*100/b, 2)
 
 # total par colonne et pourcentage
 a <- apply(t, 2, sum, na.rm = TRUE) # somme des colonnes
+a <- rbind(a, round(a * 100/sum(a), 2))
+rownames(a) <- c("Nombre", "Pourcent")
 a
-round(a * 100/sum(a), 2)
-
 
 # manipulation d'une ligne
 t['NHC',]
@@ -216,7 +227,8 @@ round(t['NHC',]*100 / sum(t['NHC',]), 2)
 
 # table des CODE_DISCIPLINE par FINESS
 t <- tapply(merge2015$CHAPITRE, list(merge2015$FINESS, merge2015$CHAPITRE), length)
-
+sl <- apply(t, 1, sum, na.rm = TRUE) # somme de la ligne
+p <- round(t * 100 / sl, 2)
 ```
 
 Codes non reconnus
@@ -313,14 +325,14 @@ for(i in 1:n){
 merge2015 <- merge(dpr2, orumip, by.x = "DP", by.y = "CIM10", all.x = TRUE)
 
 # controle
-a <- merge2015$CODE_URGENCE
+a <- merge2015$TYPE_URGENCE
 sum(is.na(a))
-a <- merge2015$DP[is.na(merge2015$CODE_URGENCE)]
+a <- merge2015$DP[is.na(merge2015$TYPE_URGENCE)]
 head(a)
 head(summary(as.factor(a)))
 
 # sauve le fichier merge
-save(merge2015, file = "../Regroupement_ORUMIP/merge2015.Rda") # merge2015
+save(merge2015, file = "../Analyse_regroupements/merge2015.Rda") # merge2015
 
 ```
 
