@@ -193,20 +193,90 @@ save(merge2015, file = "Analyse_regroupements/merge2015.Rda") # merge2015
 #save(merge2015, file = "merge2015.Rda") # merge2015
 ```
 
+Mise à jour courante
+====================
+
+Ce paragraphe décrit comment faire une mise à jour du fichier des regroupement de DP de l'année en cours. Principe:
+
+- préparer les DP à partir du fichier des RPU courants
+- récupérer le fichier des regroupements de la FEDORU
+- merger les deux fichiers
+
+```{r}
+anc <- 2016
+load(paste0("../../DATA/RPU_",anc, "/rpu", anc, "d0112.Rda")) # d16
+dx <- d16
+```
+```{r}
+# préparation des DP valides
+source("analyse_regroupement.R")
+dpr2 <- dpr(dx) 
+```
+```{r}
+# Sauvegarde du fichier dpr2
+save(dpr2, file = paste0("../Regroupement_ORUMIP/dpr2_", anc, ".Rda"))
+```
+```{r}
+# on réalise un merging des deux fichiers sur la base du code CIM 10
+load("../Regroupement_ORUMIP/orumip.Rda") # orumip
+merge2016 <- merge(dpr2, orumip, by.x = "DP", by.y = "CIM10", all.x = TRUE)
+# sauvegarde
+save(merge2016, file = paste0("merge", anc, ".Rda")) # merge2016
+
+```
+
+Analyse du fichier
+
+```{r}
+# Analyse du fichier créé
+merge<- merge2016
+tu <- table(merge$TYPE_URGENCE)
+chap <- table(merge$CHAPITRE)
+sc <- table(merge$SOUS_CHAPITRE)
+round(prop.table(tu) * 100, 2)
+
+# Type _Urgence par Finess
+tu.fness <- tapply(merge$TYPE_URGENCES, list(merge$TYPE_URGENCES, merge$FINESS), length)
+tu.fness
+p.tu.fness <- round(prop.table(tu.fness, 2) * 100, 2)
+p.tu.fness
+# % moyen
+mean.p.tu.fness <- apply(p.tu.fness, 1, mean, na.rm = T)
+cbind(p.tu.fness, mean.p.tu.fness)
+
+# Aspect graphique
+barplot(p.tu.fness[2,], las = 2, main = "Proportion de RPU médico-chirurgicaux", ylab = "%", col = "palegreen")
+abline(h = mean.p.tu.fness[2], col = "red", lty = 2)
+
+barplot(p.tu.fness[3,], las = 2, main = "Proportion de RPU psychiatriques", ylab = "%", col = "palegreen")
+abline(h = mean.p.tu.fness[3], col = "red", lty = 2)
+
+barplot(p.tu.fness[4,], las = 2, main = "Proportion de RPU toxicologiques", ylab = "%", col = "palegreen")
+abline(h = mean.p.tu.fness[4], col = "red", lty = 2)
+
+barplot(p.tu.fness[5,], las = 2, main = "Proportion de RPU traumatologiques", ylab = "%", col = "palegreen")
+abline(h = mean.p.tu.fness[5], col = "red", lty = 2)
+```
+
 Analyse rapide
 --------------
 On utilise le fichier __merge2015.Rda__ créé à l'étape précédente, résultant du croisement des RPU 2015 (au 5 novembre 2015) et des code de regroupement ORUMIP. Les codes CIM10 sont dans la colonne DP.
 
 ```{r}
-load("../Analyse_regroupements/merge2015.Rda")
-head(merge2015)
+# load(pate0("merge", anc, ".Rda")
+# merge <- paste0("merge", anc)
+head(merge)
 
-table(merge2015$TYPE_URGENCE)
-table(merge2015$CHAPITRE)
-table(merge2015$SOUS_CHAPITRE)
+tu <- table(merge$TYPE_URGENCE)
+chap <- table(merge$CHAPITRE)
+sc <- table(merge$SOUS_CHAPITRE)
+
+round(prop.table(tu) * 100, 2)
+round(prop.table(chap) * 100, 2)
+round(prop.table(sc) * 100, 2)
 
 # table des CODE_URGENCE par FINESS
-t <- tapply(merge2015$TYPE_URGENCE, list(merge2015$FINESS, merge2015$TYPE_URGENCE), length)
+t <- tapply(merge$TYPE_URGENCE, list(merge$FINESS, merge$TYPE_URGENCE), length)
 t
 
 # somme d'une ligne et % de cas par FINESS
@@ -226,7 +296,7 @@ t['NHC',] / sum(t['NHC',])
 round(t['NHC',]*100 / sum(t['NHC',]), 2)
 
 # table des CODE_DISCIPLINE par FINESS
-t <- tapply(merge2015$CHAPITRE, list(merge2015$FINESS, merge2015$CHAPITRE), length)
+t <- tapply(merge$CHAPITRE, list(merge$FINESS, merge$CHAPITRE), length)
 sl <- apply(t, 1, sum, na.rm = TRUE) # somme de la ligne
 p <- round(t * 100 / sl, 2)
 ```
@@ -240,8 +310,10 @@ NB: certains codes restent inexploitables car sans correspondance dans le thésa
 
 ```{r}
 library(epicalc)
-tab1(merge2015$LIBELLE_CIM10, graph = FALSE)
-a <- merge2015[is.na(merge2015$LIBELLE_CIM10),]
+# tab1(merge2015$LIBELLE_CIM10, graph = FALSE)
+# a <- merge2015[is.na(merge2015$LIBELLE_CIM10),]
+tab1(merge$LIBELLE_CIM10, graph = FALSE)
+a <- merge[is.na(merge$LIBELLE_CIM10),]
 x <- cbind(summary(as.factor(a$DP)))
 head(x)
 
